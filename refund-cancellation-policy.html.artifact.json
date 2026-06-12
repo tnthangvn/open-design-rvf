@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "kind": "html",
+  "title": "refund-cancellation-policy.html",
+  "entry": "refund-cancellation-policy.html",
+  "renderer": "html",
+  "status": "complete",
+  "exports": [
+    "html",
+    "pdf",
+    "zip"
+  ],
+  "createdAt": "2026-06-12T01:36:37.677Z",
+  "updatedAt": "2026-06-12T01:36:37.677Z",
+  "metadata": {
+    "inferred": true,
+    "reconciled": true
+  }
+}

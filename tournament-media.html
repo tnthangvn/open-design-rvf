@@ -1,0 +1,838 @@
+
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Quản lý Media — Giải Vô Địch Esports Quốc Gia 2024</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet"/>
+<style>
+/* ===== RVF tokens (trích assets/global.css) ===== */
+:root{
+  --c-orange:#FAA200; --c-orange-2:#FF9700; --c-orange-soft:#FCB82F;
+  --c-dark:#160D26; --c-heading:#1F2937; --c-body:#4B5563; --c-muted:#6B7280;
+  --c-border:#D1D5DB; --c-section:#F3F4F6; --c-white:#FFFFFF;
+  --grad-btn:linear-gradient(65deg,#FAA200 0%,#681B13 100%);
+  --grad-side:linear-gradient(185deg,#2a0c0d 0%,#1b0708 48%,#160d26 100%);
+  --r-btn:10px; --r-input:8px; --r-card:16px; --r-pill:9999px;
+  --ok:#16a34a; --ok-bg:#dcfce7; --warn:#b45309; --warn-bg:#fff3df;
+  --danger:#dc2626; --danger-bg:#fef2f2; --info:#1a77f2; --info-bg:#eff6ff;
+  --ease:cubic-bezier(.16,1,.3,1);
+  --sb:264px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;color:var(--c-body);background:var(--c-section);line-height:1.55;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{color:var(--c-heading);line-height:1.2;letter-spacing:-.01em}
+button{font-family:inherit;cursor:pointer;border:0;background:none}
+.num{font-family:'Poppins',sans-serif;font-variant-numeric:tabular-nums}
+.ico{width:20px;height:20px;stroke:currentColor;stroke-width:1.7;fill:none;stroke-linecap:round;stroke-linejoin:round;display:block;flex:none}
+.ico.sm{width:16px;height:16px}
+
+/* ===== Shell ===== */
+.app{display:grid;grid-template-columns:var(--sb) 1fr;min-height:100vh}
+
+/* ===== Sidebar ===== */
+.sidebar{background:var(--grad-side);color:#e9dcd8;position:fixed;inset:0 auto 0 0;width:var(--sb);display:flex;flex-direction:column;z-index:60;border-right:1px solid rgba(255,255,255,.06)}
+.sb-brand{display:flex;align-items:center;gap:11px;padding:20px 20px 18px;border-bottom:1px solid rgba(255,255,255,.07)}
+.sb-brand .logo{width:38px;height:38px;border-radius:10px;background:var(--grad-btn);display:grid;place-items:center;font-family:'Poppins';font-weight:700;color:#fff;font-size:17px;box-shadow:0 4px 14px rgba(250,162,0,.3)}
+.sb-brand b{font-family:'Poppins';font-weight:700;font-size:16px;color:#fff;letter-spacing:.01em}
+.sb-brand .role{font-size:11px;color:rgba(255,255,255,.5);letter-spacing:.04em;text-transform:uppercase}
+.sb-scroll{flex:1;overflow-y:auto;padding:14px 12px 20px}
+.sb-cap{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.38);padding:14px 12px 7px;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:11px;padding:10px 12px;border-radius:10px;color:rgba(255,255,255,.72);font-size:14.5px;font-weight:500;transition:background .14s,color .14s;position:relative}
+.nav-item:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav-item .ico{width:19px;height:19px;opacity:.85}
+.nav-item.active{background:rgba(250,162,0,.14);color:#fff}
+.nav-item.active .ico{color:var(--c-orange);opacity:1}
+.nav-item.active::before{content:"";position:absolute;left:-12px;top:8px;bottom:8px;width:3px;border-radius:0 3px 3px 0;background:var(--c-orange)}
+.nav-item .badge{margin-left:auto;font-size:11px;font-weight:600;background:rgba(255,255,255,.12);color:#fff;padding:1px 8px;border-radius:var(--r-pill)}
+.nav-sub{margin:2px 0 6px 0;padding-left:30px;display:flex;flex-direction:column;gap:1px}
+.nav-sub a{font-size:13.5px;color:rgba(255,255,255,.6);padding:7px 12px;border-radius:8px;transition:.14s;display:flex;align-items:center;gap:8px}
+.nav-sub a:hover{color:#fff;background:rgba(255,255,255,.05)}
+.nav-sub a.active{color:var(--c-orange-soft);font-weight:600}
+.nav-sub a .dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex:none}
+.sb-foot{padding:14px;border-top:1px solid rgba(255,255,255,.07);display:flex;align-items:center;gap:10px}
+.sb-foot .ava{width:34px;height:34px;border-radius:9px;background:#3a1b16;display:grid;place-items:center;color:var(--c-orange-soft);font-weight:600;font-size:13px;flex:none}
+.sb-foot .who{min-width:0}
+.sb-foot .who b{display:block;font-size:13px;color:#fff;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-foot .who span{font-size:11.5px;color:rgba(255,255,255,.5)}
+
+/* ===== Main ===== */
+.main{grid-column:2;display:flex;flex-direction:column;min-width:0}
+.topbar{background:var(--c-white);border-bottom:1px solid var(--c-border);padding:14px clamp(16px,3vw,32px);position:sticky;top:0;z-index:40}
+.tb-row{display:flex;align-items:center;gap:16px}
+.crumb{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--c-muted);flex-wrap:wrap}
+.crumb a{color:var(--c-muted)} .crumb a:hover{color:var(--c-orange)}
+.crumb .sep{opacity:.5}
+.crumb .now{color:var(--c-heading);font-weight:600}
+.tb-title{display:flex;align-items:center;gap:14px;margin-top:10px}
+.tb-thumb{width:46px;height:46px;border-radius:11px;background:var(--grad-btn);display:grid;place-items:center;color:#fff;flex:none;box-shadow:0 4px 12px rgba(250,162,0,.25)}
+.tb-title h1{font-size:clamp(18px,2.4vw,23px);font-weight:700}
+.tb-title .meta{font-size:13px;color:var(--c-muted);display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:2px}
+.tb-title .meta .live{display:inline-flex;align-items:center;gap:5px;color:var(--c-ok);font-weight:600}
+.tb-title .meta .live i{width:7px;height:7px;border-radius:50%;background:var(--c-ok);display:inline-block;box-shadow:0 0 0 3px rgba(22,163,74,.18)}
+.tb-spacer{flex:1}
+.burger{display:none;width:42px;height:42px;border-radius:10px;border:1px solid var(--c-border);color:var(--c-heading);align-items:center;justify-content:center}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:600;border-radius:var(--r-btn);padding:10px 16px;transition:transform .12s,box-shadow .2s,background .18s,border-color .18s;white-space:nowrap}
+.btn:active{transform:translateY(1px)}
+.btn-cta{background:var(--grad-btn);color:#fff;box-shadow:0 6px 18px rgba(250,162,0,.32)}
+.btn-cta:hover{box-shadow:0 11px 26px rgba(250,162,0,.46)}
+.btn-cta .ico{width:18px;height:18px;stroke-width:2.1}
+.btn-ghost{background:var(--c-white);color:var(--c-heading);border:1px solid var(--c-border)}
+.btn-ghost:hover{border-color:var(--c-orange);color:var(--c-orange)}
+.btn-soft{background:rgba(250,162,0,.12);color:#a85b06}
+.btn-soft:hover{background:rgba(250,162,0,.2)}
+.btn-sm{padding:7px 12px;font-size:13px}
+.btn-block{width:100%;justify-content:center}
+
+/* ===== Content ===== */
+.content{padding:clamp(16px,3vw,28px) clamp(16px,3vw,32px) 56px;max-width:1320px;width:100%}
+
+/* stat strip */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.stat{background:var(--c-white);border:1px solid var(--c-border);border-radius:var(--r-card);padding:16px 18px;display:flex;gap:13px;align-items:center}
+.stat .si{width:42px;height:42px;border-radius:11px;display:grid;place-items:center;flex:none}
+.stat .si.a{background:rgba(250,162,0,.13);color:var(--c-orange)}
+.stat .si.b{background:var(--info-bg);color:var(--info)}
+.stat .si.c{background:#f3e8ff;color:#9333ea}
+.stat .si.d{background:var(--ok-bg);color:var(--ok)}
+.stat .sv{font-family:'Poppins';font-weight:700;font-size:22px;color:var(--c-heading);line-height:1}
+.stat .sl{font-size:12.5px;color:var(--c-muted);margin-top:3px}
+
+/* toolbar */
+.toolbar{background:var(--c-white);border:1px solid var(--c-border);border-radius:var(--r-card);padding:14px 16px;margin-bottom:18px;display:flex;flex-direction:column;gap:13px}
+.types{display:flex;gap:6px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;font-weight:600;color:var(--c-body);background:var(--c-section);border:1px solid transparent;border-radius:var(--r-pill);padding:8px 14px;transition:.14s}
+.chip .ct{font-family:'Poppins';font-size:11.5px;background:rgba(0,0,0,.06);padding:0 7px;border-radius:var(--r-pill);color:var(--c-muted)}
+.chip:hover{color:var(--c-heading);background:#e9eaed}
+.chip.active{background:rgba(250,162,0,.14);color:#a85b06;border-color:rgba(250,162,0,.3)}
+.chip.active .ct{background:rgba(250,162,0,.22);color:#a85b06}
+.tool-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.search{flex:1;min-width:190px;display:flex;align-items:center;gap:9px;background:var(--c-section);border:1px solid transparent;border-radius:var(--r-input);padding:9px 13px;transition:.15s}
+.search:focus-within{background:#fff;border-color:var(--c-orange);box-shadow:0 0 0 3px rgba(250,162,0,.14)}
+.search .ico{color:var(--c-muted)}
+.search input{border:0;background:none;outline:none;font:inherit;font-size:14px;color:var(--c-heading);width:100%}
+.sel{appearance:none;background:var(--c-section) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 11px center;border:1px solid transparent;border-radius:var(--r-input);padding:9px 34px 9px 13px;font:inherit;font-size:14px;font-weight:500;color:var(--c-heading);cursor:pointer;transition:.15s}
+.sel:hover{background-color:#e9eaed}
+.sel:focus{outline:none;border-color:var(--c-orange);background-color:#fff}
+.view-toggle{display:flex;background:var(--c-section);border-radius:var(--r-input);padding:3px}
+.view-toggle button{width:34px;height:32px;border-radius:6px;color:var(--c-muted);display:grid;place-items:center}
+.view-toggle button.active{background:#fff;color:var(--c-orange);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+
+/* category bar */
+.catbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-top:11px;border-top:1px dashed var(--c-border)}
+.catbar .lbl{font-size:12px;font-weight:600;color:var(--c-muted);text-transform:uppercase;letter-spacing:.05em;margin-right:2px}
+.cat{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:500;color:var(--c-body);background:var(--c-section);border-radius:var(--r-pill);padding:6px 12px;transition:.14s}
+.cat:hover{background:#e9eaed}
+.cat.active{background:var(--c-dark);color:#fff}
+.cat .n{font-family:'Poppins';font-size:11px;opacity:.7}
+.cat-manage{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--c-orange);padding:6px 10px;border-radius:var(--r-pill);border:1px dashed rgba(250,162,0,.5)}
+.cat-manage:hover{background:rgba(250,162,0,.08)}
+
+/* selection bar */
+.selbar{display:none;align-items:center;gap:14px;background:var(--c-dark);color:#fff;border-radius:var(--r-card);padding:11px 18px;margin-bottom:16px;animation:slideDown .25s var(--ease)}
+.selbar.show{display:flex}
+.selbar b{font-family:'Poppins'}
+.selbar .ssp{flex:1}
+.selbar button{color:#fff;font-size:13.5px;font-weight:600;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;border-radius:8px;background:rgba(255,255,255,.1)}
+.selbar button:hover{background:rgba(255,255,255,.2)}
+.selbar button.dgr:hover{background:var(--danger)}
+@keyframes slideDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+/* ===== Grid ===== */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(232px,1fr));gap:16px}
+.media{background:var(--c-white);border:1px solid var(--c-border);border-radius:14px;overflow:hidden;transition:transform .18s var(--ease),box-shadow .18s,border-color .18s;position:relative;display:flex;flex-direction:column}
+.media:hover{transform:translateY(-3px);box-shadow:0 16px 32px -18px rgba(22,13,38,.4);border-color:color-mix(in srgb,var(--c-orange) 35%,var(--c-border))}
+.media.sel{border-color:var(--c-orange);box-shadow:0 0 0 2px var(--c-orange)}
+.thumb{aspect-ratio:16/10;position:relative;overflow:hidden;background:#ece9f0;display:grid;place-items:center}
+.thumb.img{background:linear-gradient(135deg,#3a2350,#7b3f1d)}
+.thumb.video{background:linear-gradient(135deg,#160d26,#3a1216)}
+.thumb.svg{background:repeating-conic-gradient(#eef0f2 0% 25%,#e2e5e9 0% 50%) 0/22px 22px}
+.thumb.doc{background:linear-gradient(135deg,#eef1f5,#dfe4ea)}
+.thumb .gloss{position:absolute;inset:0;background:radial-gradient(120% 80% at 30% -10%,rgba(255,255,255,.25),transparent 60%);pointer-events:none}
+.thumb .ph-ic{color:rgba(255,255,255,.92);width:40px;height:40px;filter:drop-shadow(0 2px 8px rgba(0,0,0,.3))}
+.thumb.svg .ph-ic,.thumb.doc .ph-ic{color:var(--c-muted);filter:none}
+.thumb .play{width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,.92);display:grid;place-items:center;color:var(--c-dark);position:absolute;box-shadow:0 6px 18px rgba(0,0,0,.3);transition:transform .15s}
+.media:hover .thumb .play{transform:scale(1.08)}
+.thumb .play .ico{width:22px;height:22px;fill:currentColor;stroke:none;margin-left:3px}
+.thumb .dur{position:absolute;right:8px;bottom:8px;background:rgba(0,0,0,.72);color:#fff;font-family:'Poppins';font-size:11px;font-weight:600;padding:2px 7px;border-radius:6px}
+.thumb .doc-name{position:absolute;bottom:10px;left:10px;right:10px;font-size:12px;color:var(--c-heading);font-weight:600;text-align:center}
+.type-pill{position:absolute;left:8px;top:8px;font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#fff;padding:3px 8px;border-radius:6px;backdrop-filter:blur(4px)}
+.type-pill.img{background:rgba(123,63,29,.85)} .type-pill.video{background:rgba(220,38,38,.82)}
+.type-pill.svg{background:rgba(99,102,106,.9)} .type-pill.doc{background:rgba(26,119,242,.85)}
+.pick{position:absolute;right:8px;top:8px;width:24px;height:24px;border-radius:7px;background:rgba(255,255,255,.85);border:1.5px solid rgba(0,0,0,.12);display:grid;place-items:center;color:transparent;transition:.14s;opacity:0}
+.media:hover .pick,.media.sel .pick{opacity:1}
+.media.sel .pick{background:var(--c-orange);border-color:var(--c-orange);color:#fff}
+.pick .ico{width:15px;height:15px;stroke-width:3}
+.m-body{padding:12px 13px 13px;display:flex;flex-direction:column;gap:9px;flex:1}
+.cap{font-size:13.5px;font-weight:600;color:var(--c-heading);line-height:1.35;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.6em}
+.cap.empty{color:var(--c-muted);font-weight:500;font-style:italic}
+.m-cat{font-size:11.5px;font-weight:600;color:#a85b06;background:rgba(250,162,0,.12);align-self:flex-start;padding:2px 9px;border-radius:var(--r-pill)}
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:auto}
+.tg{font-size:11px;font-weight:500;color:var(--c-body);background:var(--c-section);padding:2px 8px;border-radius:6px}
+.tg::before{content:"#";opacity:.45}
+.m-foot{display:flex;align-items:center;gap:8px;border-top:1px solid var(--c-section);padding-top:9px;font-size:11.5px;color:var(--c-muted)}
+.m-foot .sz{font-family:'Poppins'}
+.m-foot .acts{margin-left:auto;display:flex;gap:2px}
+.iconbtn{width:30px;height:30px;border-radius:8px;color:var(--c-muted);display:grid;place-items:center;transition:.14s}
+.iconbtn:hover{background:var(--c-section);color:var(--c-heading)}
+.iconbtn.dgr:hover{background:var(--danger-bg);color:var(--danger)}
+
+/* uploading card */
+.media.uploading{border-color:rgba(250,162,0,.4);background:#fffdf8}
+.media.uploading .thumb{opacity:.55}
+.up-overlay{position:absolute;inset:0;background:rgba(255,255,255,.55);backdrop-filter:blur(1px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px}
+.spinner{width:30px;height:30px;border-radius:50%;border:3px solid rgba(250,162,0,.25);border-top-color:var(--c-orange);animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.up-pct{font-family:'Poppins';font-weight:700;font-size:14px;color:#a85b06}
+.bar{height:5px;border-radius:var(--r-pill);background:var(--c-section);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--grad-btn);border-radius:var(--r-pill);transition:width .3s var(--ease)}
+
+/* empty state */
+.empty{display:none;flex-direction:column;align-items:center;text-align:center;padding:64px 24px;background:var(--c-white);border:1.5px dashed var(--c-border);border-radius:var(--r-card)}
+.empty.show{display:flex}
+.empty .ei{width:84px;height:84px;border-radius:22px;background:rgba(250,162,0,.1);display:grid;place-items:center;color:var(--c-orange);margin-bottom:18px}
+.empty .ei .ico{width:40px;height:40px}
+.empty h3{font-size:19px;margin-bottom:8px}
+.empty p{font-size:14.5px;color:var(--c-muted);max-width:380px;margin-bottom:20px}
+
+/* ===== Modal ===== */
+.scrim{position:fixed;inset:0;background:rgba(22,13,38,.55);backdrop-filter:blur(3px);z-index:90;display:none;align-items:flex-start;justify-content:center;padding:5vh 16px;overflow-y:auto}
+.scrim.show{display:flex;animation:fade .2s}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.modal{background:var(--c-white);border-radius:20px;width:100%;max-width:620px;box-shadow:0 30px 80px -20px rgba(0,0,0,.5);animation:pop .25s var(--ease);overflow:hidden}
+.modal.sm{max-width:480px}
+@keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+.m-head{display:flex;align-items:flex-start;gap:13px;padding:20px 22px 16px;border-bottom:1px solid var(--c-section)}
+.m-head .hi{width:42px;height:42px;border-radius:11px;background:rgba(250,162,0,.13);color:var(--c-orange);display:grid;place-items:center;flex:none}
+.m-head h2{font-size:18px} .m-head p{font-size:13px;color:var(--c-muted);margin-top:2px}
+.m-head .x{margin-left:auto;width:34px;height:34px;border-radius:9px;color:var(--c-muted);display:grid;place-items:center;flex:none}
+.m-head .x:hover{background:var(--c-section);color:var(--c-heading)}
+.m-cont{padding:20px 22px;display:flex;flex-direction:column;gap:16px;max-height:64vh;overflow-y:auto}
+.m-cont::-webkit-scrollbar{width:8px} .m-cont::-webkit-scrollbar-thumb{background:#d6d6db;border-radius:8px}
+
+/* dropzone */
+.drop{border:2px dashed var(--c-border);border-radius:14px;padding:30px 20px;text-align:center;transition:.16s;cursor:pointer;background:var(--c-section)}
+.drop:hover{border-color:var(--c-orange);background:rgba(250,162,0,.05)}
+.drop.over{border-color:var(--c-orange);background:rgba(250,162,0,.1);transform:scale(1.005)}
+.drop .di{width:56px;height:56px;border-radius:50%;background:#fff;display:grid;place-items:center;color:var(--c-orange);margin:0 auto 13px;box-shadow:0 6px 16px rgba(250,162,0,.18)}
+.drop .di .ico{width:26px;height:26px;stroke-width:1.9}
+.drop b{display:block;font-size:15px;color:var(--c-heading);margin-bottom:5px}
+.drop b span{color:var(--c-orange)}
+.drop small{font-size:12.5px;color:var(--c-muted);line-height:1.6;display:block}
+.allow{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:12px}
+.allow span{font-size:11px;font-weight:600;color:var(--c-body);background:#fff;border:1px solid var(--c-border);border-radius:6px;padding:3px 8px}
+
+/* upload queue */
+.queue{display:flex;flex-direction:column;gap:9px}
+.q-item{display:flex;align-items:center;gap:12px;background:var(--c-section);border-radius:11px;padding:11px 13px;border:1px solid transparent}
+.q-item.err{background:var(--danger-bg);border-color:rgba(220,38,38,.25)}
+.q-ic{width:38px;height:38px;border-radius:9px;background:#fff;display:grid;place-items:center;color:var(--c-muted);flex:none}
+.q-item.err .q-ic{color:var(--danger);background:#fff}
+.q-main{flex:1;min-width:0}
+.q-name{font-size:13.5px;font-weight:600;color:var(--c-heading);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.q-sub{font-size:11.5px;color:var(--c-muted);margin-top:2px}
+.q-item.err .q-sub{color:var(--danger);font-weight:600}
+.q-bar{margin-top:6px}
+.q-state{flex:none;display:flex;align-items:center;gap:8px}
+.q-pct{font-family:'Poppins';font-size:12px;font-weight:600;color:#a85b06;min-width:34px;text-align:right}
+.q-ok{color:var(--ok)} .q-x{width:28px;height:28px;border-radius:7px;color:var(--c-muted);display:grid;place-items:center}
+.q-x:hover{background:#fff;color:var(--danger)}
+
+/* field */
+.field label{display:block;font-size:13px;font-weight:600;color:var(--c-heading);margin-bottom:6px}
+.field label .opt{font-weight:400;color:var(--c-muted)}
+.inp{width:100%;font:inherit;font-size:14px;color:var(--c-heading);background:var(--c-white);border:1px solid var(--c-border);border-radius:var(--r-input);padding:10px 13px;transition:.15s}
+.inp:focus{outline:0;border-color:var(--c-orange);box-shadow:0 0 0 3px rgba(250,162,0,.15)}
+textarea.inp{resize:vertical;min-height:64px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+
+/* tag input */
+.taginput{display:flex;flex-wrap:wrap;gap:6px;align-items:center;background:#fff;border:1px solid var(--c-border);border-radius:var(--r-input);padding:7px 9px;transition:.15s}
+.taginput:focus-within{border-color:var(--c-orange);box-shadow:0 0 0 3px rgba(250,162,0,.15)}
+.tag-chip{display:inline-flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600;color:#a85b06;background:rgba(250,162,0,.13);border-radius:7px;padding:4px 6px 4px 9px}
+.tag-chip button{color:#a85b06;opacity:.65;display:grid;place-items:center}
+.tag-chip button:hover{opacity:1}
+.tag-chip .ico{width:13px;height:13px;stroke-width:2.5}
+.taginput input{border:0;outline:none;font:inherit;font-size:13.5px;flex:1;min-width:90px;padding:4px}
+.tag-wrap{position:relative}
+.suggest{position:absolute;top:calc(100% + 5px);left:0;right:0;background:#fff;border:1px solid var(--c-border);border-radius:11px;box-shadow:0 14px 34px -12px rgba(0,0,0,.3);padding:6px;z-index:5;display:none}
+.suggest.show{display:block}
+.suggest button{display:flex;align-items:center;gap:9px;width:100%;text-align:left;padding:8px 10px;border-radius:8px;font-size:13.5px;color:var(--c-heading)}
+.suggest button:hover,.suggest button.hl{background:var(--c-section)}
+.suggest button .n{margin-left:auto;font-family:'Poppins';font-size:11.5px;color:var(--c-muted)}
+.suggest .new{color:var(--c-orange);font-weight:600}
+
+.m-foot-bar{padding:16px 22px;border-top:1px solid var(--c-section);display:flex;align-items:center;gap:12px;background:var(--c-white)}
+.m-foot-bar .info{font-size:12.5px;color:var(--c-muted)}
+.m-foot-bar .sp{flex:1}
+
+/* category manager rows */
+.catlist{display:flex;flex-direction:column;gap:8px}
+.catrow{display:flex;align-items:center;gap:11px;background:var(--c-section);border-radius:11px;padding:10px 12px}
+.catrow .grip{color:var(--c-muted);cursor:grab}
+.catrow .cn{flex:1;font-size:14px;font-weight:600;color:var(--c-heading)}
+.catrow .cc{font-family:'Poppins';font-size:12px;color:var(--c-muted);background:#fff;padding:2px 9px;border-radius:var(--r-pill)}
+.catrow input.inp{padding:7px 11px}
+.addcat{display:flex;gap:9px}
+
+/* toast */
+.toasts{position:fixed;right:20px;bottom:20px;z-index:120;display:flex;flex-direction:column;gap:10px}
+.toast{display:flex;align-items:center;gap:11px;background:var(--c-dark);color:#fff;padding:13px 17px;border-radius:12px;box-shadow:0 14px 34px -10px rgba(0,0,0,.5);font-size:13.5px;font-weight:500;animation:tIn .3s var(--ease);max-width:340px}
+.toast .ti{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;flex:none}
+.toast.ok .ti{background:rgba(34,197,94,.22);color:#4ade80}
+.toast.err .ti{background:rgba(220,38,38,.25);color:#fca5a5}
+@keyframes tIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+
+/* mobile */
+.sb-back{display:none;position:fixed;inset:0;background:rgba(22,13,38,.5);z-index:55}
+@media(max-width:1080px){.stats{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:880px){
+  .app{grid-template-columns:1fr}
+  .sidebar{transform:translateX(-100%);transition:transform .28s var(--ease)}
+  .sidebar.open{transform:none}
+  .sb-back.show{display:block}
+  .main{grid-column:1}
+  .burger{display:flex}
+  .tb-spacer{order:3}
+}
+@media(max-width:640px){
+  .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+  .stats{grid-template-columns:1fr 1fr;gap:10px}
+  .stat{padding:13px}.stat .sv{font-size:18px}
+  .frow{grid-template-columns:1fr}
+  .tb-addlabel{display:none}
+  .btn-cta{padding:10px 13px}
+  .cap{-webkit-line-clamp:2;min-height:auto}
+}
+@media(max-width:420px){.grid{grid-template-columns:1fr 1fr;gap:10px}.content{padding:14px 14px 48px}}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-brand">
+      <div class="logo">RV</div>
+      <div>
+        <b>RONGVIET</b>
+        <div class="role">Ban tổ chức</div>
+      </div>
+    </div>
+    <div class="sb-scroll">
+      <div class="sb-cap">Tổng quan</div>
+      <a class="nav-item" href="#"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>Bảng điều khiển</a>
+      <a class="nav-item" href="#"><svg class="ico" viewBox="0 0 24 24"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6m12 5h1.5a2.5 2.5 0 0 0 0-5H18M6 4v6a6 6 0 0 0 12 0V4M8 21h8m-4-4v4"/></svg>Giải đấu của tôi</a>
+      <a class="nav-item" href="#"><svg class="ico" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>Đăng ký &amp; VĐV</a>
+      <a class="nav-item" href="#"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>Lịch thi đấu</a>
+
+      <div class="sb-cap">Nội dung</div>
+      <a class="nav-item active" href="#" aria-current="page"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/></svg>Quản lý Media <span class="badge num">48</span></a>
+      <div class="nav-sub">
+        <a href="#" class="active"><span class="dot"></span>Thư viện media</a>
+        <a href="#"><span class="dot"></span>Danh mục</a>
+        <a href="#"><span class="dot"></span>Thẻ (Tags)</a>
+      </div>
+      <a class="nav-item" href="#"><svg class="ico" viewBox="0 0 24 24"><path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4L12 17l-6.3 4.4L8 14 2 9.4h7.6z"/></svg>Nhà tài trợ</a>
+      <a class="nav-item" href="#"><svg class="ico" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><path d="M4 22v-7"/></svg>Tin tức &amp; sự kiện</a>
+
+      <div class="sb-cap">Hệ thống</div>
+      <a class="nav-item" href="#"><svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Cài đặt</a>
+    </div>
+    <div class="sb-foot">
+      <div class="ava">MH</div>
+      <div class="who"><b>Minh Hoàng</b><span>BTC · Rồng Việt</span></div>
+    </div>
+  </aside>
+  <div class="sb-back" id="sbBack"></div>
+
+  <!-- ============ MAIN ============ -->
+  <div class="main">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="tb-row">
+        <button class="burger" id="burger" aria-label="Mở menu"><svg class="ico" viewBox="0 0 24 24"><path d="M3 12h18M3 6h18M3 18h18"/></svg></button>
+        <div class="crumb">
+          <a href="#">Giải đấu</a><span class="sep">›</span>
+          <a href="#">Esports Quốc Gia 2024</a><span class="sep">›</span>
+          <span class="now">Quản lý Media</span>
+        </div>
+      </div>
+      <div class="tb-title">
+        <div class="tb-thumb"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/></svg></div>
+        <div>
+          <h1>Thư viện Media giải đấu</h1>
+          <div class="meta">
+            <span>Giải Vô Địch Esports Quốc Gia 2024</span>
+            <span>•</span>
+            <span class="live"><i></i>Đang diễn ra</span>
+          </div>
+        </div>
+        <div class="tb-spacer"></div>
+        <button class="btn btn-cta" id="openUpload">
+          <svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          <span class="tb-addlabel">Thêm media</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <main class="content">
+      <!-- STATS -->
+      <div class="stats">
+        <div class="stat"><div class="si a"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/></svg></div><div><div class="sv num" id="stTotal">48</div><div class="sl">Tổng media</div></div></div>
+        <div class="stat"><div class="si b"><svg class="ico" viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg></div><div><div class="sv num">12</div><div class="sl">Video</div></div></div>
+        <div class="stat"><div class="si c"><svg class="ico" viewBox="0 0 24 24"><path d="M4 4h6l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg></div><div><div class="sv num">6</div><div class="sl">Danh mục</div></div></div>
+        <div class="stat"><div class="si d"><svg class="ico" viewBox="0 0 24 24"><path d="M20.59 13.41 13.42 20.6a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.5"/></svg></div><div><div class="sv num">18</div><div class="sl">Thẻ tags</div></div></div>
+      </div>
+
+      <!-- TOOLBAR -->
+      <div class="toolbar">
+        <div class="types" id="types">
+          <button class="chip active" data-type="all">Tất cả <span class="ct num">48</span></button>
+          <button class="chip" data-type="img"><svg class="ico sm" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/></svg>Ảnh <span class="ct num">22</span></button>
+          <button class="chip" data-type="video"><svg class="ico sm" viewBox="0 0 24 24"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>Video <span class="ct num">12</span></button>
+          <button class="chip" data-type="svg"><svg class="ico sm" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>SVG <span class="ct num">8</span></button>
+          <button class="chip" data-type="doc"><svg class="ico sm" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Tài liệu <span class="ct num">6</span></button>
+        </div>
+        <div class="tool-row">
+          <div class="search"><svg class="ico sm" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg><input id="search" type="text" placeholder="Tìm theo tên file, caption…"/></div>
+          <select class="sel" id="catSel">
+            <option value="all">Tất cả danh mục</option>
+            <option value="chung-ket">Chung kết</option>
+            <option value="khai-mac">Khai mạc</option>
+            <option value="hau-truong">Hậu trường</option>
+            <option value="ho-so">Hồ sơ pháp lý</option>
+          </select>
+          <select class="sel" id="sortSel">
+            <option value="new">Mới nhất</option>
+            <option value="order">Thứ tự sắp xếp</option>
+            <option value="name">Tên A→Z</option>
+            <option value="size">Dung lượng</option>
+          </select>
+          <div class="view-toggle">
+            <button class="active" title="Lưới"><svg class="ico sm" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></button>
+            <button title="Danh sách"><svg class="ico sm" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></button>
+          </div>
+        </div>
+        <div class="catbar" id="catbar">
+          <span class="lbl">Danh mục</span>
+          <button class="cat active" data-cat="all">Tất cả <span class="n num">48</span></button>
+          <button class="cat" data-cat="chung-ket">Chung kết <span class="n num">14</span></button>
+          <button class="cat" data-cat="khai-mac">Khai mạc <span class="n num">9</span></button>
+          <button class="cat" data-cat="hau-truong">Hậu trường <span class="n num">11</span></button>
+          <button class="cat" data-cat="ho-so">Hồ sơ pháp lý <span class="n num">6</span></button>
+          <button class="cat-manage" id="openCats"><svg class="ico sm" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Quản lý danh mục</button>
+        </div>
+      </div>
+
+      <!-- SELECTION BAR -->
+      <div class="selbar" id="selbar">
+        <b><span id="selCount" class="num">0</span> mục đã chọn</b>
+        <button id="selCat"><svg class="ico sm" viewBox="0 0 24 24"><path d="M4 4h6l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>Gán danh mục</button>
+        <button id="selTag"><svg class="ico sm" viewBox="0 0 24 24"><path d="M20.59 13.41 13.42 20.6a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.5"/></svg>Gắn thẻ</button>
+        <div class="ssp"></div>
+        <button class="dgr" id="selDel"><svg class="ico sm" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>Xoá</button>
+        <button id="selClear"><svg class="ico sm" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg>Bỏ chọn</button>
+      </div>
+
+      <!-- GRID -->
+      <div class="grid" id="grid"></div>
+
+      <!-- EMPTY STATE -->
+      <div class="empty" id="empty">
+        <div class="ei"><svg class="ico" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/></svg></div>
+        <h3 id="emptyTitle">Chưa có media nào</h3>
+        <p id="emptyText">Tải lên ảnh, video, SVG hoặc tài liệu để xây dựng thư viện cho giải đấu. Bạn có thể kéo-thả nhiều file cùng lúc.</p>
+        <button class="btn btn-cta" id="emptyAdd"><svg class="ico" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Thêm media đầu tiên</button>
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- ============ UPLOAD MODAL ============ -->
+<div class="scrim" id="upScrim">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="upT">
+    <div class="m-head">
+      <div class="hi"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+      <div><h2 id="upT">Thêm media cho giải đấu</h2><p>File được tải thẳng lên S3 qua link ký an toàn (presigned URL).</p></div>
+      <button class="x" data-close><svg class="ico" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="m-cont">
+      <div class="drop" id="drop">
+        <input type="file" id="file" multiple hidden accept="image/*,.svg,video/*,.pdf,.doc,.docx,.xls,.xlsx"/>
+        <div class="di"><svg class="ico" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
+        <b>Kéo &amp; thả file vào đây hoặc <span>chọn từ máy</span></b>
+        <small>Ảnh / SVG tối đa 10MB · Video tối đa 500MB · Tài liệu (PDF, DOC, XLSX) tối đa 25MB</small>
+        <div class="allow"><span>JPG · PNG · WEBP</span><span>SVG</span><span>MP4 · MOV</span><span>PDF · DOCX · XLSX</span></div>
+      </div>
+
+      <div class="queue" id="queue" style="display:none"></div>
+
+      <!-- meta gán cho cả batch -->
+      <div id="upMeta" style="display:none;flex-direction:column;gap:16px">
+        <div class="frow">
+          <div class="field">
+            <label>Danh mục <span class="opt">— tùy chọn</span></label>
+            <select class="sel" id="upCat" style="width:100%">
+              <option value="">— Không gán —</option>
+              <option value="chung-ket">Chung kết</option>
+              <option value="khai-mac">Khai mạc</option>
+              <option value="hau-truong">Hậu trường</option>
+              <option value="ho-so">Hồ sơ pháp lý</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Caption chung <span class="opt">— tùy chọn</span></label>
+            <input class="inp" id="upCap" type="text" placeholder="VD: Trận chung kết bảng A"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>Thẻ (Tags) <span class="opt">— gõ rồi Enter, gợi ý từ pool chung</span></label>
+          <div class="tag-wrap">
+            <div class="taginput" id="taginput">
+              <input type="text" id="tagField" placeholder="highlight, chung-ket…"/>
+            </div>
+            <div class="suggest" id="suggest"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="m-foot-bar">
+      <span class="info" id="upInfo">Chưa có file nào được chọn</span>
+      <div class="sp"></div>
+      <button class="btn btn-ghost btn-sm" data-close>Huỷ</button>
+      <button class="btn btn-cta btn-sm" id="confirmUpload" disabled style="opacity:.5;pointer-events:none">
+        <svg class="ico sm" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>Tải lên &amp; thêm
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CATEGORY MANAGER MODAL ============ -->
+<div class="scrim" id="catScrim">
+  <div class="modal sm" role="dialog" aria-modal="true">
+    <div class="m-head">
+      <div class="hi"><svg class="ico" viewBox="0 0 24 24"><path d="M4 4h6l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg></div>
+      <div><h2>Quản lý danh mục</h2><p>Phân loại media theo từng phần của giải đấu.</p></div>
+      <button class="x" data-close><svg class="ico" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="m-cont">
+      <div class="catlist" id="catlist"></div>
+      <div class="field">
+        <label>Thêm danh mục mới</label>
+        <div class="addcat">
+          <input class="inp" id="newCat" type="text" placeholder="VD: Trao giải, Phỏng vấn…"/>
+          <button class="btn btn-cta btn-sm" id="addCat"><svg class="ico sm" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Thêm</button>
+        </div>
+      </div>
+    </div>
+    <div class="m-foot-bar">
+      <span class="info">Xoá danh mục sẽ gỡ gán khỏi media (không xoá media).</span>
+      <div class="sp"></div>
+      <button class="btn btn-cta btn-sm" data-close>Xong</button>
+    </div>
+  </div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<script>
+/* ============ DATA ============ */
+const TYPE_META = {
+  img:  {label:'Ảnh',   pill:'IMG'},
+  video:{label:'Video', pill:'VIDEO'},
+  svg:  {label:'SVG',   pill:'SVG'},
+  doc:  {label:'Tài liệu', pill:'DOC'}
+};
+const CAT_LABEL = {'chung-ket':'Chung kết','khai-mac':'Khai mạc','hau-truong':'Hậu trường','ho-so':'Hồ sơ pháp lý'};
+
+let MEDIA = [
+  {id:'m1', type:'video', name:'chung-ket-bang-a.mp4', cap:'Toàn cảnh trận chung kết bảng A', cat:'chung-ket', tags:['highlight','chung-ket'], size:'248 MB', dur:'12:04'},
+  {id:'m2', type:'img',  name:'le-khai-mac-01.jpg', cap:'Sân khấu lễ khai mạc Esports Quốc Gia 2024', cat:'khai-mac', tags:['khai-mac','san-khau'], size:'4.2 MB'},
+  {id:'m3', type:'img',  name:'doi-thien-long-fc.jpg', cap:'Đội tuyển Thiên Long FC ra mắt', cat:'khai-mac', tags:['doi-tuyen'], size:'3.8 MB'},
+  {id:'m4', type:'svg',  name:'logo-giai-dau.svg', cap:'Logo chính thức của giải', cat:'ho-so', tags:['logo','nhan-dien'], size:'46 KB'},
+  {id:'m5', type:'video', name:'highlight-vong-bang.mp4', cap:'Tổng hợp highlight vòng bảng tuần 2', cat:'chung-ket', tags:['highlight'], size:'186 MB', dur:'08:31'},
+  {id:'m6', type:'doc',  name:'the-le-thi-dau-2024.pdf', cap:'Thể lệ thi đấu chính thức', cat:'ho-so', tags:['the-le','quy-dinh'], size:'1.2 MB'},
+  {id:'m7', type:'img',  name:'hau-truong-binh-luan.jpg', cap:'', cat:'hau-truong', tags:['hau-truong','binh-luan-vien'], size:'5.1 MB'},
+  {id:'m8', type:'img',  name:'khan-dai-co-vu.jpg', cap:'Khán đài cổ vũ cuồng nhiệt', cat:'chung-ket', tags:['khan-gia'], size:'6.0 MB'},
+  {id:'m9', type:'svg',  name:'so-do-nhanh-dau.svg', cap:'Sơ đồ nhánh đấu loại trực tiếp', cat:'', tags:['so-do'], size:'88 KB'},
+  {id:'m10', type:'doc', name:'danh-sach-vdv.xlsx', cap:'Danh sách vận động viên đăng ký', cat:'ho-so', tags:['vdv'], size:'320 KB'},
+  {id:'m11', type:'video', name:'phong-van-nha-vo-dich.mp4', cap:'Phỏng vấn nhà vô địch sau trận', cat:'hau-truong', tags:['phong-van','highlight'], size:'94 MB', dur:'05:48'},
+  {id:'m12', type:'img', name:'trao-cup-vo-dich.jpg', cap:'Khoảnh khắc trao cúp vô địch', cat:'chung-ket', tags:['trao-cup','highlight'], size:'7.3 MB'}
+];
+const TAG_POOL = ['highlight','chung-ket','khai-mac','hau-truong','san-khau','doi-tuyen','logo','nhan-dien','the-le','quy-dinh','binh-luan-vien','khan-gia','so-do','vdv','phong-van','trao-cup','remote','reel'];
+let CATEGORIES = [
+  {slug:'chung-ket', name:'Chung kết', n:14},
+  {slug:'khai-mac', name:'Khai mạc', n:9},
+  {slug:'hau-truong', name:'Hậu trường', n:11},
+  {slug:'ho-so', name:'Hồ sơ pháp lý', n:6}
+];
+
+let filterType='all', filterCat='all', search='';
+const selected = new Set();
+
+/* ============ HELPERS ============ */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const esc=s=>(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function toast(msg,kind='ok'){
+  const t=document.createElement('div'); t.className='toast '+kind;
+  const ic = kind==='ok' ? '<path d="M20 6 9 17l-5-5"/>' : '<path d="M12 9v4m0 4h.01M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>';
+  t.innerHTML=`<span class="ti"><svg class="ico sm" viewBox="0 0 24 24">${ic}</svg></span><span>${esc(msg)}</span>`;
+  $('#toasts').appendChild(t); setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(20px)';t.style.transition='.3s';setTimeout(()=>t.remove(),300);},2800);
+}
+
+/* ============ RENDER GRID ============ */
+function thumbInner(m){
+  if(m.type==='video') return `<div class="gloss"></div><div class="play"><svg class="ico" viewBox="0 0 24 24"><polygon points="6 4 20 12 6 20 6 4"/></svg></div>${m.dur?`<span class="dur num">${m.dur}</span>`:''}`;
+  if(m.type==='img') return `<div class="gloss"></div><svg class="ph-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/></svg>`;
+  if(m.type==='svg') return `<svg class="ph-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>`;
+  return `<svg class="ph-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><div class="doc-name">${esc(m.name)}</div>`;
+}
+function card(m){
+  const tm=TYPE_META[m.type];
+  const tags=(m.tags||[]).slice(0,3).map(t=>`<span class="tg">${esc(t)}</span>`).join('');
+  return `<article class="media${selected.has(m.id)?' sel':''}" data-id="${m.id}" data-type="${m.type}">
+    <div class="thumb ${m.type}">
+      ${thumbInner(m)}
+      <span class="type-pill ${m.type}">${tm.pill}</span>
+      <button class="pick" data-pick aria-label="Chọn"><svg class="ico" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></button>
+    </div>
+    <div class="m-body">
+      <div class="cap${m.cap?'':' empty'}">${m.cap?esc(m.cap):'Chưa có caption'}</div>
+      ${m.cat?`<span class="m-cat">${esc(CAT_LABEL[m.cat]||m.cat)}</span>`:''}
+      ${tags?`<div class="tags">${tags}</div>`:'<div class="tags"></div>'}
+      <div class="m-foot">
+        <span class="sz">${m.size}</span>
+        <div class="acts">
+          <button class="iconbtn" data-edit title="Sửa caption / thẻ"><svg class="ico sm" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></button>
+          <button class="iconbtn dgr" data-del title="Xoá"><svg class="ico sm" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>
+        </div>
+      </div>
+    </div>
+  </article>`;
+}
+function render(){
+  const list = MEDIA.filter(m=>{
+    if(filterType!=='all' && m.type!==filterType) return false;
+    if(filterCat!=='all' && m.cat!==filterCat) return false;
+    if(search){
+      const hay=(m.name+' '+m.cap+' '+(m.tags||[]).join(' ')).toLowerCase();
+      if(!hay.includes(search.toLowerCase())) return false;
+    }
+    return true;
+  });
+  const grid=$('#grid'), empty=$('#empty');
+  if(list.length===0){
+    grid.innerHTML='';
+    empty.classList.add('show');
+    const filtered = MEDIA.length>0;
+    $('#emptyTitle').textContent = filtered ? 'Không tìm thấy media phù hợp' : 'Chưa có media nào';
+    $('#emptyText').textContent = filtered
+      ? 'Thử đổi bộ lọc loại file, danh mục hoặc xoá từ khoá tìm kiếm.'
+      : 'Tải lên ảnh, video, SVG hoặc tài liệu để xây dựng thư viện cho giải đấu. Bạn có thể kéo-thả nhiều file cùng lúc.';
+    $('#emptyAdd').style.display = filtered ? 'none' : '';
+  }else{
+    empty.classList.remove('show');
+    grid.innerHTML=list.map(card).join('');
+  }
+  $('#stTotal').textContent=MEDIA.length;
+  updateSelBar();
+}
+
+/* ============ FILTERS ============ */
+$('#types').addEventListener('click',e=>{const b=e.target.closest('.chip');if(!b)return;$$('.chip').forEach(c=>c.classList.remove('active'));b.classList.add('active');filterType=b.dataset.type;render();});
+$('#catbar').addEventListener('click',e=>{const b=e.target.closest('.cat');if(!b)return;$$('.cat').forEach(c=>c.classList.remove('active'));b.classList.add('active');filterCat=b.dataset.cat;$('#catSel').value=b.dataset.cat;render();});
+$('#catSel').addEventListener('change',e=>{filterCat=e.target.value;$$('.cat').forEach(c=>c.classList.toggle('active',c.dataset.cat===filterCat));render();});
+$('#search').addEventListener('input',e=>{search=e.target.value;render();});
+
+/* ============ GRID ACTIONS ============ */
+$('#grid').addEventListener('click',e=>{
+  const cardEl=e.target.closest('.media'); if(!cardEl)return; const id=cardEl.dataset.id;
+  if(e.target.closest('[data-pick]')){ toggleSel(id); return; }
+  if(e.target.closest('[data-del]')){
+    if(confirm('Gỡ media này khỏi giải đấu? Thao tác sẽ xoá file trên S3 nếu không dùng nơi khác.')){
+      MEDIA=MEDIA.filter(m=>m.id!==id); selected.delete(id); render(); toast('Đã xoá media khỏi giải đấu');
+    } return;
+  }
+  if(e.target.closest('[data-edit]')){ toast('Mở khung sửa caption & thẻ (demo)'); return; }
+});
+function toggleSel(id){ selected.has(id)?selected.delete(id):selected.add(id); $(`.media[data-id="${id}"]`)?.classList.toggle('sel',selected.has(id)); updateSelBar(); }
+function updateSelBar(){ const bar=$('#selbar'); $('#selCount').textContent=selected.size; bar.classList.toggle('show',selected.size>0); }
+$('#selClear').onclick=()=>{selected.clear();$$('.media.sel').forEach(c=>c.classList.remove('sel'));updateSelBar();};
+$('#selDel').onclick=()=>{ if(!selected.size)return; if(confirm(`Xoá ${selected.size} media đã chọn?`)){ MEDIA=MEDIA.filter(m=>!selected.has(m.id)); selected.clear(); render(); toast('Đã xoá các media đã chọn'); } };
+$('#selCat').onclick=()=>toast('Gán danh mục cho mục đã chọn (demo)');
+$('#selTag').onclick=()=>toast('Gắn thẻ cho mục đã chọn (demo)');
+
+/* ============ MODALS open/close ============ */
+function openModal(id){ $(id).classList.add('show'); document.body.style.overflow='hidden'; }
+function closeModal(el){ el.classList.remove('show'); document.body.style.overflow=''; }
+$$('[data-close]').forEach(b=>b.addEventListener('click',e=>closeModal(e.target.closest('.scrim'))));
+$$('.scrim').forEach(s=>s.addEventListener('click',e=>{if(e.target===s)closeModal(s);}));
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$$('.scrim.show').forEach(closeModal);});
+$('#openUpload').onclick=()=>openUpload();
+$('#emptyAdd').onclick=()=>openUpload();
+$('#openCats').onclick=()=>{renderCats();openModal('#catScrim');};
+
+/* ============ UPLOAD FLOW ============ */
+let queue=[]; // {name,size,type,pct,status,err}
+const MAX={img:10,svg:10,video:500,doc:25}; // MB
+const EXT_TYPE={jpg:'img',jpeg:'img',png:'img',webp:'img',gif:'img',svg:'svg',mp4:'video',mov:'video',webm:'video',pdf:'doc',doc:'doc',docx:'doc',xls:'doc',xlsx:'doc'};
+function detect(name){const ext=name.split('.').pop().toLowerCase();return EXT_TYPE[ext]||null;}
+function fmt(mb){return mb>=1?mb.toFixed(1)+' MB':Math.round(mb*1024)+' KB';}
+
+function openUpload(){
+  queue=[]; renderQueue(); $('#tagState')&&0;
+  TAGS.length=0; renderTags(); $('#upCat').value=''; $('#upCap').value='';
+  openModal('#upScrim');
+}
+const drop=$('#drop'), fileInput=$('#file');
+drop.onclick=()=>fileInput.click();
+fileInput.onchange=e=>addFiles([...e.target.files]);
+;['dragenter','dragover'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('over');}));
+;['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('over');}));
+drop.addEventListener('drop',e=>{ if(e.dataTransfer?.files?.length) addFiles([...e.dataTransfer.files]); });
+
+function addFiles(files){
+  files.forEach(f=>{
+    const type=detect(f.name);
+    const sizeMB=f.size/1048576;
+    let err=null;
+    if(!type) err='Định dạng không được hỗ trợ';
+    else if(sizeMB>MAX[type]) err=`Vượt giới hạn ${MAX[type]}MB cho ${TYPE_META[type].label.toLowerCase()}`;
+    queue.push({name:f.name, sizeMB, size:fmt(sizeMB), type:type||'doc', pct:0, status: err?'error':'queued', err});
+  });
+  renderQueue();
+  // bắt đầu upload mô phỏng cho các file hợp lệ
+  queue.filter(q=>q.status==='queued').forEach(simulate);
+}
+function simulate(q){
+  q.status='uploading';
+  const tick=()=>{
+    if(q.status!=='uploading'){return;}
+    q.pct=Math.min(100,q.pct+Math.random()*22+6);
+    if(q.pct>=100){q.pct=100;q.status='done';}
+    renderQueue();
+    if(q.status==='uploading') setTimeout(tick, 280+Math.random()*260);
+  };
+  setTimeout(tick,250);
+}
+function renderQueue(){
+  const box=$('#queue'), meta=$('#upMeta');
+  box.style.display = queue.length?'flex':'none';
+  meta.style.display = queue.some(q=>q.status!=='error')?'flex':'none';
+  box.innerHTML = queue.map((q,i)=>{
+    const ic = q.type==='video'?'<polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/>'
+      : q.type==='img'?'<rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.09-3.09a2 2 0 0 0-2.82 0L6 21"/>'
+      : q.type==='svg'?'<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>'
+      : '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>';
+    let right='';
+    if(q.status==='error') right=`<span class="q-x" data-rm="${i}"><svg class="ico sm" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></span>`;
+    else if(q.status==='done') right=`<svg class="ico q-ok" viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>`;
+    else right=`<span class="q-pct">${Math.round(q.pct)}%</span>`;
+    const sub = q.status==='error' ? q.err : (q.status==='done'?'Đã tải lên · '+q.size:q.size+' · đang tải…');
+    const bar = (q.status==='uploading'||q.status==='queued') ? `<div class="bar q-bar"><i style="width:${q.pct}%"></i></div>` : '';
+    return `<div class="q-item ${q.status==='error'?'err':''}">
+      <div class="q-ic"><svg class="ico sm" viewBox="0 0 24 24">${ic}</svg></div>
+      <div class="q-main"><div class="q-name">${esc(q.name)}</div><div class="q-sub">${esc(sub)}</div>${bar}</div>
+      <div class="q-state">${right}</div>
+    </div>`;
+  }).join('');
+  // info + confirm enable
+  const valid=queue.filter(q=>q.status!=='error');
+  const done=queue.filter(q=>q.status==='done').length;
+  const errs=queue.filter(q=>q.status==='error').length;
+  $('#upInfo').textContent = queue.length
+    ? `${valid.length} file hợp lệ · ${done} đã tải xong${errs?` · ${errs} lỗi`:''}`
+    : 'Chưa có file nào được chọn';
+  const ready = valid.length>0 && valid.every(q=>q.status==='done');
+  const c=$('#confirmUpload');
+  c.disabled=!ready; c.style.opacity=ready?'1':'.5'; c.style.pointerEvents=ready?'auto':'none';
+}
+$('#queue').addEventListener('click',e=>{const r=e.target.closest('[data-rm]');if(r){queue.splice(+r.dataset.rm,1);renderQueue();}});
+
+$('#confirmUpload').onclick=()=>{
+  const cat=$('#upCat').value, cap=$('#upCap').value.trim();
+  const ok=queue.filter(q=>q.status==='done');
+  ok.forEach((q,i)=>{
+    MEDIA.unshift({id:'n'+Date.now()+i, type:q.type, name:q.name, cap:cap, cat:cat, tags:[...TAGS], size:q.size, dur:q.type==='video'?'—':undefined});
+  });
+  closeModal($('#upScrim'));
+  render();
+  toast(`Đã thêm ${ok.length} media vào giải đấu`);
+};
+
+/* ============ TAG INPUT ============ */
+const TAGS=[]; let hlIndex=-1;
+const tagField=$('#tagField'), suggest=$('#suggest'), taginput=$('#taginput');
+function renderTags(){
+  taginput.querySelectorAll('.tag-chip').forEach(c=>c.remove());
+  TAGS.forEach((t,i)=>{
+    const el=document.createElement('span'); el.className='tag-chip';
+    el.innerHTML=`#${esc(t)}<button data-tag="${i}"><svg class="ico" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>`;
+    taginput.insertBefore(el, tagField);
+  });
+}
+function addTag(t){t=t.trim().toLowerCase().replace(/\s+/g,'-');if(t&&!TAGS.includes(t)){TAGS.push(t);renderTags();}tagField.value='';showSuggest();}
+taginput.onclick=()=>tagField.focus();
+taginput.addEventListener('click',e=>{const b=e.target.closest('[data-tag]');if(b){TAGS.splice(+b.dataset.tag,1);renderTags();}});
+tagField.addEventListener('keydown',e=>{
+  const items=[...suggest.querySelectorAll('button')];
+  if(e.key==='Enter'){e.preventDefault(); if(hlIndex>=0&&items[hlIndex]){items[hlIndex].click();} else if(tagField.value.trim()){addTag(tagField.value);}}
+  else if(e.key===','){e.preventDefault();if(tagField.value.trim())addTag(tagField.value);}
+  else if(e.key==='Backspace'&&!tagField.value&&TAGS.length){TAGS.pop();renderTags();}
+  else if(e.key==='ArrowDown'){e.preventDefault();hlIndex=Math.min(items.length-1,hlIndex+1);hl(items);}
+  else if(e.key==='ArrowUp'){e.preventDefault();hlIndex=Math.max(0,hlIndex-1);hl(items);}
+});
+function hl(items){items.forEach((it,i)=>it.classList.toggle('hl',i===hlIndex));}
+tagField.addEventListener('input',showSuggest);
+tagField.addEventListener('focus',showSuggest);
+function showSuggest(){
+  const q=tagField.value.trim().toLowerCase(); hlIndex=-1;
+  let matches=TAG_POOL.filter(t=>!TAGS.includes(t)&&(!q||t.includes(q))).slice(0,6);
+  let html=matches.map(t=>`<button data-add="${t}"><svg class="ico sm" viewBox="0 0 24 24" style="color:var(--c-muted)"><path d="M20.59 13.41 13.42 20.6a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><circle cx="7" cy="7" r="1.5"/></svg>#${esc(t)}<span class="n num">pool</span></button>`).join('');
+  if(q && !TAG_POOL.includes(q) && !TAGS.includes(q)){
+    html=`<button data-add="${esc(q)}" class="new"><svg class="ico sm" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Tạo thẻ mới “#${esc(q)}”</button>`+html;
+  }
+  suggest.innerHTML=html;
+  suggest.classList.toggle('show', html.length>0);
+}
+suggest.addEventListener('mousedown',e=>{const b=e.target.closest('[data-add]');if(b){e.preventDefault();addTag(b.dataset.add);tagField.focus();}});
+document.addEventListener('click',e=>{if(!e.target.closest('.tag-wrap'))suggest.classList.remove('show');});
+
+/* ============ CATEGORY MANAGER ============ */
+function renderCats(){
+  $('#catlist').innerHTML=CATEGORIES.map((c,i)=>`<div class="catrow" data-i="${i}">
+    <svg class="ico sm grip" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="18" r="1"/><circle cx="15" cy="6" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="18" r="1"/></svg>
+    <span class="cn">${esc(c.name)}</span>
+    <span class="cc num">${c.n} media</span>
+    <button class="iconbtn" data-cedit="${i}" title="Sửa"><svg class="ico sm" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg></button>
+    <button class="iconbtn dgr" data-cdel="${i}" title="Xoá"><svg class="ico sm" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/></svg></button>
+  </div>`).join('');
+}
+$('#catlist').addEventListener('click',e=>{
+  const ed=e.target.closest('[data-cedit]'), dl=e.target.closest('[data-cdel]');
+  if(dl){const i=+dl.dataset.cdel; if(confirm(`Xoá danh mục “${CATEGORIES[i].name}”? Media đang gán sẽ về chưa phân loại.`)){CATEGORIES.splice(i,1);renderCats();toast('Đã xoá danh mục');}}
+  if(ed){const i=+ed.dataset.cedit;const row=ed.closest('.catrow');const cn=row.querySelector('.cn');
+    const inp=document.createElement('input');inp.className='inp';inp.value=CATEGORIES[i].name;cn.replaceWith(inp);inp.focus();
+    const save=()=>{CATEGORIES[i].name=inp.value.trim()||CATEGORIES[i].name;renderCats();toast('Đã cập nhật danh mục');};
+    inp.addEventListener('keydown',ev=>{if(ev.key==='Enter')save();});inp.addEventListener('blur',save);
+  }
+});
+$('#addCat').onclick=()=>{const v=$('#newCat').value.trim();if(!v)return;CATEGORIES.push({slug:v.toLowerCase().replace(/\s+/g,'-'),name:v,n:0});$('#newCat').value='';renderCats();toast('Đã thêm danh mục “'+v+'”');};
+$('#newCat').addEventListener('keydown',e=>{if(e.key==='Enter')$('#addCat').click();});
+
+/* ============ MOBILE NAV ============ */
+$('#burger').onclick=()=>{$('#sidebar').classList.add('open');$('#sbBack').classList.add('show');};
+$('#sbBack').onclick=()=>{$('#sidebar').classList.remove('open');$('#sbBack').classList.remove('show');};
+
+/* ============ INIT ============ */
+render();
+</script>
+</body>
+</html>

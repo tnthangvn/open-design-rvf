@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "kind": "html",
+  "title": "Quản lý Media giải đấu — Ban tổ chức RVF",
+  "entry": "tournament-media.html",
+  "renderer": "html",
+  "status": "complete",
+  "exports": [
+    "html",
+    "pdf",
+    "zip"
+  ],
+  "primary": true,
+  "createdAt": "2026-06-16T10:11:03.969Z",
+  "updatedAt": "2026-06-16T10:11:03.978Z",
+  "metadata": {
+    "identifier": "tournament-media",
+    "artifactType": "text/html",
+    "inferred": false
+  }
+}

@@ -8,8 +8,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="assets/global.css"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <style>
 /* ============================================================
    QUẢN LÝ CỤM SÂN — thư viện chuẩn (spec: manage-location-clusters*.md)
@@ -94,12 +92,35 @@ body{background:var(--app-bg);color:var(--app-ink)}
 .qs-legend .lg{display:inline-flex;align-items:center;gap:6px}
 .qs-legend .sw{width:10px;height:10px;border-radius:3px}
 
-/* region filters (province → ward) */
-.qs-filtersel{display:inline-flex;align-items:center;height:38px;border:1px solid var(--app-line);border-radius:9px;background:#fff;position:relative}
-.qs-filtersel svg{width:15px;height:15px;color:var(--app-muted);stroke:currentColor;stroke-width:1.9;fill:none;margin-left:11px;flex:none}
-.qs-filtersel select{appearance:none;border:0;outline:0;background:transparent;font-family:inherit;font-size:13.5px;font-weight:500;color:var(--app-label);padding:0 30px 0 8px;height:100%;cursor:pointer;max-width:178px;text-overflow:ellipsis}
-.qs-filtersel::after{content:"";position:absolute;right:12px;top:50%;width:6px;height:6px;border-right:1.6px solid var(--app-muted);border-bottom:1.6px solid var(--app-muted);transform:translateY(-70%) rotate(45deg);pointer-events:none}
-.qs-filtersel:focus-within{border-color:var(--app-orange);box-shadow:0 0 0 3px rgba(255,151,0,.15)}
+/* region filters — multi-select dropdown (checkbox + search) */
+.qs-ms{position:relative;font-family:inherit}
+.qs-ms-btn{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 11px;border:1px solid var(--app-line);border-radius:9px;background:#fff;cursor:pointer;font-family:inherit;font-size:13.5px;font-weight:500;color:var(--app-label);max-width:230px;transition:border-color .15s,box-shadow .15s}
+.qs-ms-btn:hover{border-color:#c7ccd4}
+.qs-ms.open .qs-ms-btn{border-color:var(--app-orange);box-shadow:0 0 0 3px rgba(255,151,0,.15)}
+.qs-ms-btn>.lic{width:15px;height:15px;color:var(--app-muted);stroke:currentColor;stroke-width:1.9;fill:none;flex:none}
+.qs-ms-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
+.qs-ms-btn .cnt{background:var(--app-maroon);color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;border-radius:999px;padding:1px 7px;flex:none}
+.qs-ms-caret{width:13px;height:13px;margin-left:auto;color:var(--app-muted);stroke:currentColor;stroke-width:2.2;fill:none;flex:none;transition:transform .18s}
+.qs-ms.open .qs-ms-caret{transform:rotate(180deg)}
+.qs-ms-panel{position:absolute;top:calc(100% + 6px);left:0;z-index:70;width:252px;background:#fff;border:1px solid var(--app-line);border-radius:12px;box-shadow:0 18px 44px -16px rgba(22,13,38,.42);padding:8px;display:none;flex-direction:column}
+.qs-ms.open .qs-ms-panel{display:flex}
+.qs-ms-search{display:flex;align-items:center;gap:7px;height:34px;padding:0 9px;border:1px solid var(--app-line);border-radius:8px;margin-bottom:6px}
+.qs-ms-search svg{width:14px;height:14px;color:var(--app-muted);stroke:currentColor;stroke-width:2;fill:none;flex:none}
+.qs-ms-search input{border:0;outline:0;width:100%;font-family:inherit;font-size:13px;background:transparent;color:var(--app-ink)}
+.qs-ms-opts{max-height:244px;overflow-y:auto;display:flex;flex-direction:column;gap:1px}
+.qs-ms-opt{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:7px;cursor:pointer;font-size:13.5px;color:var(--app-ink);user-select:none}
+.qs-ms-opt:hover{background:#f3f4f6}
+.qs-ms-box{width:17px;height:17px;border:1.6px solid #c4c9d2;border-radius:5px;display:grid;place-items:center;flex:none;background:#fff;transition:all .15s}
+.qs-ms-box svg{width:11px;height:11px;stroke:#fff;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+.qs-ms-opt.on .qs-ms-box{background:var(--app-maroon);border-color:var(--app-maroon)}
+.qs-ms-opt.on .qs-ms-box svg{opacity:1}
+.qs-ms-opt.all{font-weight:600;border-bottom:1px solid var(--app-line);border-radius:0;margin-bottom:3px;padding-bottom:10px}
+.qs-ms-none{padding:14px 9px;text-align:center;font-size:12.5px;color:var(--app-muted);display:none}
+.qs-ms-foot{display:flex;align-items:center;justify-content:space-between;padding:8px 6px 2px;border-top:1px solid var(--app-line);margin-top:5px}
+.qs-ms-clear{appearance:none;border:0;background:transparent;color:var(--app-maroon);font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;padding:2px 4px}
+.qs-ms-clear:hover{text-decoration:underline}
+.qs-ms-clear:disabled{color:#c4c9d2;cursor:default;text-decoration:none}
+.qs-ms-cnt{font-family:var(--mono);font-size:11.5px;color:var(--app-muted)}
 
 /* select-all (header) — indeterminate dash */
 .qs-listhead .qs-check{cursor:pointer}
@@ -119,9 +140,8 @@ body{background:var(--app-bg);color:var(--app-ink)}
 .qs-geo-msg.err{color:#b91c1c}
 .qs-geo-msg.ok{color:#15803d}
 
-/* leaflet map container + pin state */
-#map{height:100%;width:100%}
-.leaflet-container{font:inherit;background:#e8ebef}
+/* Google Maps embed container + pin state */
+#map{height:100%;width:100%;border:0;display:block;background:#e8ebef}
 .qs-pin-state{font-family:var(--mono);font-size:12px;color:var(--app-muted);display:inline-flex;align-items:center;gap:7px}
 .qs-pin-state .dotp{width:8px;height:8px;border-radius:50%;background:#cbd0d8;flex:none}
 .qs-pin-state.set{color:var(--app-ink)}
@@ -383,14 +403,32 @@ body{background:var(--app-bg);color:var(--app-ink)}
         <button class="qs-chip" data-sport="bong-chuyen">Bóng chuyền</button>
         <button class="qs-chip" data-sport="futsal">Futsal</button>
       </div>
-      <label class="qs-filtersel" title="Lọc theo Tỉnh/Thành">
-        <svg viewBox="0 0 24 24"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        <select id="fProvince" aria-label="Lọc theo tỉnh/thành"><option value="all">Tất cả tỉnh/thành</option></select>
-      </label>
-      <label class="qs-filtersel" title="Lọc theo Xã/Phường">
-        <svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg>
-        <select id="fWard" aria-label="Lọc theo xã/phường"><option value="all">Tất cả xã/phường</option></select>
-      </label>
+      <div class="qs-ms" id="msProvince" data-unit="tỉnh/thành" data-all="Tất cả tỉnh/thành">
+        <button class="qs-ms-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+          <svg class="lic" viewBox="0 0 24 24"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span class="qs-ms-label">Tất cả tỉnh/thành</span>
+          <svg class="qs-ms-caret" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="qs-ms-panel" role="listbox" aria-multiselectable="true">
+          <div class="qs-ms-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input type="search" placeholder="Tìm tỉnh/thành…" aria-label="Tìm tỉnh/thành"/></div>
+          <div class="qs-ms-opts"></div>
+          <div class="qs-ms-none">Không có kết quả</div>
+          <div class="qs-ms-foot"><button class="qs-ms-clear" type="button">Bỏ chọn</button><span class="qs-ms-cnt"></span></div>
+        </div>
+      </div>
+      <div class="qs-ms" id="msWard" data-unit="xã/phường" data-all="Tất cả xã/phường">
+        <button class="qs-ms-btn" type="button" aria-haspopup="listbox" aria-expanded="false">
+          <svg class="lic" viewBox="0 0 24 24"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg>
+          <span class="qs-ms-label">Tất cả xã/phường</span>
+          <svg class="qs-ms-caret" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="qs-ms-panel" role="listbox" aria-multiselectable="true">
+          <div class="qs-ms-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input type="search" placeholder="Tìm xã/phường…" aria-label="Tìm xã/phường"/></div>
+          <div class="qs-ms-opts"></div>
+          <div class="qs-ms-none">Không có kết quả</div>
+          <div class="qs-ms-foot"><button class="qs-ms-clear" type="button">Bỏ chọn</button><span class="qs-ms-cnt"></span></div>
+        </div>
+      </div>
       <div class="qs-legend">
         <span class="lg"><span class="sw" style="background:var(--s-hard)"></span>Sân cứng</span>
         <span class="lg"><span class="sw" style="background:var(--s-clay)"></span>Đất nện</span>
@@ -448,12 +486,12 @@ body{background:var(--app-bg);color:var(--app-ink)}
         <input class="qs-input" id="fAddr" type="text" placeholder="Số nhà, đường, phường/xã, tỉnh/thành…"/>
         <button class="qs-geobtn" id="geoBtn" type="button"><svg viewBox="0 0 24 24"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Định vị</button>
       </div>
-      <div class="qs-hint">Nhập địa chỉ rồi bấm <b>Định vị</b> để hệ thống tự tìm vị trí trên bản đồ. Kéo ghim (hoặc bấm vào bản đồ) để chỉnh lại nếu lệch.</div>
+      <div class="qs-hint">Nhập địa chỉ rồi bấm <b>Định vị</b> để hiện ghim trên Google Maps. Nếu lệch, sửa toạ độ ở mục nâng cao hoặc mở Google Maps để lấy ghim chính xác.</div>
       <div class="qs-geo-msg" id="geoMsg"></div>
     </div>
     <div class="qs-field">
       <label>Vị trí trên bản đồ</label>
-      <div class="qs-map"><div id="map"></div></div>
+      <div class="qs-map"><iframe id="map" title="Bản đồ vị trí cụm sân" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
       <div class="qs-coords" style="margin-top:9px">
         <span class="qs-pin-state" id="pinState"><span class="dotp"></span>Chưa ghim vị trí</span>
         <a class="qs-maplink" id="gmapLink" href="https://www.google.com/maps" target="_blank" rel="noopener" style="margin-left:auto">Mở trên Google Maps ↗</a>
@@ -572,11 +610,12 @@ body{background:var(--app-bg);color:var(--app-ink)}
 
   // ----- render list -----
   var list=document.getElementById('list'), empty=document.getElementById('empty');
-  var fSport='all', fQ='', fProv='all', fWard='all', selected={};
+  var fSport='all', fQ='', provSel={}, wardSel={}, selected={};
+  function selSize(o){return Object.keys(o).length;}
   function visible(){return CLUSTERS.filter(function(c){
     return (fSport==='all'||c.sports.indexOf(fSport)>-1)
-      && (fProv==='all'||c.province===fProv)
-      && (fWard==='all'||c.ward===fWard)
+      && (selSize(provSel)===0||provSel[c.province])
+      && (selSize(wardSel)===0||wardSel[c.ward])
       && (fQ===''||(c.name+' '+c.address+' '+c.venue+' '+c.province+' '+c.ward).toLowerCase().indexOf(fQ)>-1);});}
   function render(){
     var v=visible(); list.innerHTML='';
@@ -611,17 +650,79 @@ body{background:var(--app-bg);color:var(--app-ink)}
     b.classList.add('on'); fSport=b.dataset.sport; render();});
   document.getElementById('search').addEventListener('input',function(){fQ=this.value.trim().toLowerCase();render();});
 
-  // ----- region filters (province → ward cascade) -----
-  var selProv=document.getElementById('fProvince'), selWard=document.getElementById('fWard');
-  Object.keys(GEO).forEach(function(p){selProv.insertAdjacentHTML('beforeend','<option value="'+p+'">'+p+'</option>');});
-  function fillWardFilter(){
-    selWard.innerHTML='<option value="all">Tất cả xã/phường</option>';
-    var ws=fProv==='all'?Object.keys(GEO).reduce(function(a,p){return a.concat(GEO[p]);},[]):(GEO[fProv]||[]);
-    ws.filter(function(w,i){return ws.indexOf(w)===i;}).forEach(function(w){selWard.insertAdjacentHTML('beforeend','<option value="'+w+'">'+w+'</option>');});
+  // ----- region filters — multi-select dropdowns (checkbox + search) -----
+  var CHK='<span class="qs-ms-box"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>';
+  function makeMultiSelect(root,cfg){
+    // cfg: {sel, items(): [..], onChange(), allLabel, unit}
+    var btn=root.querySelector('.qs-ms-btn'), label=root.querySelector('.qs-ms-label'),
+        panel=root.querySelector('.qs-ms-panel'), optsBox=root.querySelector('.qs-ms-opts'),
+        noneEl=root.querySelector('.qs-ms-none'), search=root.querySelector('.qs-ms-search input'),
+        clearBtn=root.querySelector('.qs-ms-clear'), cntEl=root.querySelector('.qs-ms-cnt');
+    function syncBtn(){
+      var n=Object.keys(cfg.sel).length, old=btn.querySelector('.cnt');
+      if(old)old.remove();
+      if(n===0){label.textContent=cfg.allLabel;}
+      else if(n===1){label.textContent=Object.keys(cfg.sel)[0];}
+      else{label.textContent=n+' '+cfg.unit; btn.insertBefore(Object.assign(document.createElement('span'),{className:'cnt',textContent:n}),root.querySelector('.qs-ms-caret'));}
+      clearBtn.disabled=n===0;
+      cntEl.textContent=n? n+'/'+cfg.items().length+' đã chọn':'';
+    }
+    function paint(){
+      var items=cfg.items(), q=(search.value||'').trim().toLowerCase();
+      // prune selected that no longer exist (cascade)
+      Object.keys(cfg.sel).forEach(function(k){if(items.indexOf(k)<0)delete cfg.sel[k];});
+      optsBox.innerHTML='';
+      if(!q){
+        var all=document.createElement('div');
+        all.className='qs-ms-opt all'+(Object.keys(cfg.sel).length===0?' on':'');
+        all.innerHTML=CHK+cfg.allLabel; all.dataset.val='__all__';
+        optsBox.appendChild(all);
+      }
+      var shown=0;
+      items.forEach(function(v){
+        if(q&&v.toLowerCase().indexOf(q)<0)return;
+        shown++;
+        var o=document.createElement('div');
+        o.className='qs-ms-opt'+(cfg.sel[v]?' on':''); o.dataset.val=v;
+        o.innerHTML=CHK+v; optsBox.appendChild(o);
+      });
+      noneEl.style.display=shown===0?'block':'none';
+      syncBtn();
+    }
+    optsBox.addEventListener('click',function(e){
+      var o=e.target.closest('.qs-ms-opt'); if(!o)return;
+      var v=o.dataset.val;
+      if(v==='__all__'){ for(var k in cfg.sel)delete cfg.sel[k]; }
+      else if(cfg.sel[v]){ delete cfg.sel[v]; }
+      else { cfg.sel[v]=true; }
+      paint(); cfg.onChange();
+    });
+    clearBtn.addEventListener('click',function(){for(var k in cfg.sel)delete cfg.sel[k];paint();cfg.onChange();});
+    search.addEventListener('input',paint);
+    btn.addEventListener('click',function(e){e.stopPropagation();closeAllMS(root);var op=root.classList.toggle('open');btn.setAttribute('aria-expanded',op);if(op){paint();search.value='';search.focus();}});
+    panel.addEventListener('click',function(e){e.stopPropagation();});
+    root._paint=paint; root._sync=syncBtn;
+    paint();
+    return {paint:paint};
   }
-  fillWardFilter();
-  selProv.addEventListener('change',function(){fProv=this.value;fWard='all';fillWardFilter();render();});
-  selWard.addEventListener('change',function(){fWard=this.value;render();});
+  function closeAllMS(except){document.querySelectorAll('.qs-ms.open').forEach(function(m){if(m!==except){m.classList.remove('open');m.querySelector('.qs-ms-btn').setAttribute('aria-expanded','false');}});}
+  document.addEventListener('click',function(){closeAllMS(null);});
+
+  var allProvinces=Object.keys(GEO);
+  function wardsForSelectedProvinces(){
+    var src=Object.keys(provSel).length? Object.keys(provSel):allProvinces, out=[];
+    src.forEach(function(p){(GEO[p]||[]).forEach(function(w){if(out.indexOf(w)<0)out.push(w);});});
+    return out;
+  }
+  var msWard;
+  var msProv=makeMultiSelect(document.getElementById('msProvince'),{
+    sel:provSel, items:function(){return allProvinces;}, allLabel:'Tất cả tỉnh/thành', unit:'tỉnh/thành',
+    onChange:function(){ if(msWard)document.getElementById('msWard')._paint(); render(); }
+  });
+  msWard=makeMultiSelect(document.getElementById('msWard'),{
+    sel:wardSel, items:wardsForSelectedProvinces, allLabel:'Tất cả xã/phường', unit:'xã/phường',
+    onChange:function(){ render(); }
+  });
 
   // ----- select-all visible rows -----
   var checkAll=document.getElementById('checkAll');
@@ -684,43 +785,38 @@ body{background:var(--app-bg);color:var(--app-ink)}
       var b=document.createElement('button');b.type='button';b.textContent='×';b.onclick=function(){sp.splice(i,1);renderSports(sp);};
       t.appendChild(b);box.insertBefore(t,sel);});
   }
-  // ---- interactive map (Leaflet/OSM): address-first, draggable pin ----
+  // ---- Google Maps embed (keyless iframe): address-first, coord-correctable ----
   var DEFAULT_LL=[16.0471,108.2068]; // Đà Nẵng center khi chưa có toạ độ
-  var lmap=null, lmarker=null, hasLeaflet=(typeof L!=='undefined');
+  var mapEl=document.getElementById('map');
   var fLat=document.getElementById('fLat'), fLng=document.getElementById('fLng');
   var pinState=document.getElementById('pinState'), gmapLink=document.getElementById('gmapLink'), geoMsg=document.getElementById('geoMsg');
 
+  function gmap(q,zoom){return 'https://maps.google.com/maps?q='+encodeURIComponent(q)+'&z='+(zoom||15)+'&hl=vi&output=embed';}
+  // place pin by coordinates (fills advanced fields + Google pin)
   function setPin(lat,lng,placed){
     var la=parseFloat(lat),ln=parseFloat(lng);
     if(isNaN(la)||isNaN(ln)){la=DEFAULT_LL[0];ln=DEFAULT_LL[1];placed=false;}
-    if(hasLeaflet&&lmap){
-      lmap.setView([la,ln],placed?16:11);
-      if(!lmarker){
-        lmarker=L.marker([la,ln],{draggable:true}).addTo(lmap);
-        lmarker.on('dragend',function(){var p=lmarker.getLatLng();setPin(p.lat,p.lng,true);});
-      } else { lmarker.setLatLng([la,ln]); }
-      lmarker.setOpacity(placed?1:.4);
-    }
+    mapEl.src=gmap(la+','+ln,placed?16:11);
     if(placed){fLat.value=(+la).toFixed(6);fLng.value=(+ln).toFixed(6);}
     pinState.classList.toggle('set',!!placed);
     pinState.innerHTML='<span class="dotp"></span>'+(placed?'Đã ghim · '+(+la).toFixed(5)+', '+(+ln).toFixed(5):'Chưa ghim vị trí');
     gmapLink.href='https://www.google.com/maps/search/?api=1&query='+la+','+ln;
   }
-  function initMap(){
-    if(!hasLeaflet||lmap)return;
-    lmap=L.map('map',{zoomControl:true,scrollWheelZoom:true});
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(lmap);
-    lmap.setView(DEFAULT_LL,11);
-    lmap.on('click',function(e){setPin(e.latlng.lat,e.latlng.lng,true);hideGeoMsg();});
+  // show Google map by free-text address (no coords resolved)
+  function showByAddress(q){
+    mapEl.src=gmap(q,15);
+    pinState.classList.remove('set');
+    pinState.innerHTML='<span class="dotp"></span>Theo địa chỉ — chưa có toạ độ';
+    gmapLink.href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(q);
   }
   function showGeoMsg(t,kind){geoMsg.textContent=t;geoMsg.className='qs-geo-msg show '+(kind||'');}
   function hideGeoMsg(){geoMsg.className='qs-geo-msg';}
 
-  // manual coord edit → move pin
+  // manual coord edit → move Google pin
   ['fLat','fLng'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){
     if(fLat.value!==''&&fLng.value!=='')setPin(fLat.value,fLng.value,true);});});
 
-  // geocode from address (Nominatim/OSM, keyless)
+  // “Định vị”: resolve address → coords (keyless geocoder) then pin on Google; fallback = Google by address
   function geocode(){
     var addr=document.getElementById('fAddr').value.trim();
     var prov=document.getElementById('fProv').value, ward=document.getElementById('fWardSel').value;
@@ -730,10 +826,10 @@ body{background:var(--app-bg);color:var(--app-ink)}
     fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=vi&q='+encodeURIComponent(q))
       .then(function(r){return r.json();})
       .then(function(d){btn.classList.remove('busy');
-        if(d&&d.length){setPin(d[0].lat,d[0].lon,true);showGeoMsg('Đã ghim theo địa chỉ. Kéo ghim hoặc bấm bản đồ để chỉnh nếu lệch.','ok');}
-        else{showGeoMsg('Không tìm thấy địa chỉ. Thử thêm phường/xã + tỉnh/thành, hoặc bấm trực tiếp lên bản đồ để đặt ghim.','err');}
+        if(d&&d.length){setPin(d[0].lat,d[0].lon,true);showGeoMsg('Đã ghim trên Google Maps. Lệch thì sửa toạ độ ở mục nâng cao.','ok');}
+        else{showByAddress(q);showGeoMsg('Chưa lấy được toạ độ chính xác — đang hiện theo địa chỉ. Mở Google Maps để lấy ghim chính xác rồi dán toạ độ.','err');}
       })
-      .catch(function(){btn.classList.remove('busy');showGeoMsg('Không kết nối được dịch vụ bản đồ. Bấm lên bản đồ hoặc nhập toạ độ thủ công ở mục nâng cao.','err');});
+      .catch(function(){btn.classList.remove('busy');showByAddress(q);showGeoMsg('Hiện bản đồ theo địa chỉ. Để có toạ độ chính xác, mở Google Maps lấy ghim rồi nhập toạ độ thủ công.','err');});
   }
   document.getElementById('geoBtn').addEventListener('click',geocode);
 
@@ -761,9 +857,8 @@ body{background:var(--app-bg);color:var(--app-ink)}
     document.getElementById('fVenue').value=draft.venue; document.getElementById('fAddr').value=draft.address;
     document.getElementById('fLat').value=draft.lat; document.getElementById('fLng').value=draft.lng;
     fillDrawerRegion(draft.province||'',draft.ward||''); hideGeoMsg();
-    initMap();
     var hasLL=draft.lat!==''&&draft.lng!=='';
-    setTimeout(function(){if(lmap)lmap.invalidateSize(); setPin(hasLL?draft.lat:DEFAULT_LL[0],hasLL?draft.lng:DEFAULT_LL[1],hasLL);},320);
+    setPin(hasLL?draft.lat:DEFAULT_LL[0],hasLL?draft.lng:DEFAULT_LL[1],hasLL);
     var sp=draft.sports.slice(); renderSports(sp); draft._sp=sp;
     document.getElementById('addSport').onchange=function(){if(this.value&&sp.indexOf(this.value)<0){sp.push(this.value);renderSports(sp);}this.value='';};
     ctRows.innerHTML=''; (draft.courts.length?draft.courts:[court('Sân 1','HARD','INDOOR',18,9,100,true)]).forEach(function(ct,i){ctRows.appendChild(courtRow(ct,i));});

@@ -72,7 +72,9 @@ Mỗi dòng VĐV:
    (`registration_status = APPROVED`, `status = active`), set `team_name`, `seed`.
    `group_name` có giá trị → tạo/ánh xạ `Group` + set `team.group_id`.
 3. **TeamMember**: link `athlete_id`, set `is_captain`; captain → cập nhật `team.captain_athlete_id`.
-4. **Guardian** (nếu tuổi < 18 theo `dob`): tạo `GuardianRequest(status = approved)` gắn `athlete_user_id`.
+4. **Guardian** (nếu tuổi < 18 theo `dob`): tạo `GuardianRequest` với **provenance import** (mục 6.1) và
+   gắn `athlete_user_id`. Vì Sở đã cung cấp đủ thông tin ⇒ **KHÔNG chạy luồng xác minh riêng**
+   (không gửi email/SMS token, không chờ giám hộ bấm xác nhận).
 
 ## 5. Validate (trả lỗi theo bảng `{sheet, row, key, message}`, KHÔNG dừng ở lỗi đầu)
 
@@ -80,6 +82,28 @@ Mỗi dòng VĐV:
 - Mỗi `team_ref`: đúng **1** `is_captain = true`; số VĐV khớp `Sport.team_size` (đơn=1, đôi=2, đội=N).
 - Tuổi suy từ `dob` thỏa `Tournament.age`; `gender` từng VĐV thỏa `Tournament.gender`.
 - VĐV `dob` < 18 ⇒ bắt buộc đủ `guardian_name / guardian_relation / guardian_phone / guardian_email`.
+
+### 5.1 Người giám hộ — provenance khi import từ Sở
+
+Khi VĐV < 18 và Sở đã điền **đủ** thông tin giám hộ (`guardian_name`, `guardian_relation`,
+`guardian_phone`, `guardian_email`) ⇒ coi như **đã được Sở xác nhận**, hệ thống **bỏ qua luồng
+xác minh riêng** và tạo `GuardianRequest` đã duyệt sẵn kèm dấu vết nguồn gốc:
+
+| Trường (DB) | Giá trị set khi import | Ý nghĩa |
+| --- | --- | --- |
+| `guardian_status` | `approved` | Trạng thái duyệt (dùng lại cột `status` hiện có) |
+| `guardian_source` | `SPORT_DEPARTMENT_IMPORT` | Nguồn dữ liệu giám hộ = danh sách Sở (**trường mới**) |
+| `guardian_verified_by` | `department_roster_import` | Ai/cơ chế nào đã xác nhận (**trường mới**) |
+| `approved_at` | thời điểm import (UTC) | Mốc duyệt |
+
+Quy ước:
+
+- Đây là các trường **hệ thống tự set**, **KHÔNG có** trong template Excel của Sở.
+- `guardian_source` là enum nguồn gốc; giá trị mặc định cho luồng thường nên là `SELF_REQUEST`
+  (VĐV/giám hộ tự khai), và `SPORT_DEPARTMENT_IMPORT` cho luồng import này → về sau có thể thêm
+  nguồn khác (vd `ADMIN_MANUAL`) mà không phá dữ liệu cũ.
+- Nếu Sở điền **thiếu** thông tin giám hộ cho VĐV < 18 ⇒ **lỗi validate** (mục 5), KHÔNG fallback
+  sang luồng xác minh thủ công.
 
 ## 6. Khoá chống trùng (idempotent re-import)
 
@@ -102,6 +126,7 @@ external_ref  →  email  →  (fallback: normalize(full_name) + dob + gender, g
 | 3 | Re-import | **Upsert** theo khoá mục 6 |
 | 4 | Khoá định danh | `email` chính; `phone` chỉ là thông tin |
 | 5 | Người giám hộ | Lấy **đủ** thông tin text; tạo `GuardianRequest(approved)` |
+| 6 | Provenance giám hộ | Đủ thông tin ⇒ bỏ qua xác minh riêng; set `guardian_source=SPORT_DEPARTMENT_IMPORT`, `status=approved`, `guardian_verified_by=department_roster_import` |
 
 ## 8. Hạ tầng cần thêm khi implement (chưa có trong repo)
 
@@ -110,6 +135,12 @@ external_ref  →  email  →  (fallback: normalize(full_name) + dob + gender, g
 - Service mới: `tournament-roster-import.service.ts`.
 - Validator: dùng `createValidator` + check MIME `.xlsx` (đã có trong `src/constants/upload.ts`).
 - File mẫu Sở tải về: `template-roster.v1.xlsx` (đã có trong thư mục này).
+- **Schema mới trên `guardian_requests`** (migration + model):
+  - `guardian_source` — enum `GuardianSource { SELF_REQUEST, SPORT_DEPARTMENT_IMPORT, ... }`,
+    default `SELF_REQUEST`. Enum thuộc Tier-1 (model-owned), khai trong `GuardianRequest.ts`.
+  - `guardian_verified_by` — `STRING` (nullable), set `department_roster_import` khi import.
+  - (`guardian_status` dùng lại cột `status` hiện có với giá trị `approved`.)
+  - Tên cột/bảng tham chiếu qua `@constants/database` (`TABLES`, `*_COL`), không hardcode.
 
 ## 9. Việc downstream (ghi nhận, không chặn spec)
 

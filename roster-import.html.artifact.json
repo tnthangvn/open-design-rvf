@@ -1,0 +1,19 @@
+{
+  "version": 1,
+  "kind": "html",
+  "title": "roster-import.html",
+  "entry": "roster-import.html",
+  "renderer": "html",
+  "status": "complete",
+  "exports": [
+    "html",
+    "pdf",
+    "zip"
+  ],
+  "createdAt": "2026-06-17T08:42:43.567Z",
+  "updatedAt": "2026-06-17T08:42:43.567Z",
+  "metadata": {
+    "inferred": true,
+    "reconciled": true
+  }
+}

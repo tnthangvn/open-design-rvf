@@ -92,6 +92,44 @@ body{background:var(--app-bg);color:var(--app-ink)}
 .qs-legend .lg{display:inline-flex;align-items:center;gap:6px}
 .qs-legend .sw{width:10px;height:10px;border-radius:3px}
 
+/* province multi-select (AdministrativeUnitFilter) */
+.qs-prov{position:relative}
+.qs-prov-btn{display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 11px;width:210px;max-width:210px;
+  border:1px solid var(--app-line);border-radius:9px;background:#fff;font-family:inherit;font-size:14px;font-weight:500;color:var(--app-ink);cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.qs-prov-btn:hover{border-color:#c7ccd4}
+.qs-prov-btn .pin{width:16px;height:16px;flex:none;color:var(--app-muted);stroke:currentColor;stroke-width:1.9;fill:none}
+.qs-prov-label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;text-align:left}
+.qs-prov.has .qs-prov-label{color:var(--app-maroon);font-weight:600}
+.qs-prov-btn .chev{width:15px;height:15px;flex:none;color:var(--app-muted);stroke:currentColor;stroke-width:2;fill:none;transition:transform .2s var(--ease)}
+.qs-prov.open .qs-prov-btn{border-color:var(--app-orange);box-shadow:0 0 0 3px rgba(255,151,0,.15)}
+.qs-prov.open .qs-prov-btn .chev{transform:rotate(180deg)}
+.qs-prov-pop{position:absolute;top:calc(100% + 6px);left:0;z-index:45;width:300px;max-width:88vw;background:#fff;
+  border:1px solid var(--app-line);border-radius:12px;box-shadow:0 18px 44px -16px rgba(20,10,10,.4);padding:10px;display:none}
+.qs-prov.open .qs-prov-pop{display:block}
+.qs-prov-search{display:flex;align-items:center;gap:8px;height:36px;padding:0 10px;border:1px solid var(--app-line);border-radius:8px;margin-bottom:8px}
+.qs-prov-search svg{width:15px;height:15px;flex:none;color:var(--app-muted);stroke:currentColor;stroke-width:2;fill:none}
+.qs-prov-search input{border:0;outline:0;font-family:inherit;font-size:13.5px;width:100%;background:transparent;color:var(--app-ink)}
+.qs-prov-acts{display:flex;gap:6px;padding:0 2px 8px;border-bottom:1px solid var(--app-line);margin-bottom:6px}
+.qs-prov-acts button{appearance:none;border:0;background:transparent;cursor:pointer;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--app-maroon);padding:5px 8px;border-radius:6px}
+.qs-prov-acts button:hover{background:rgba(123,0,0,.07)}
+.qs-prov-acts button:disabled{color:#c4c9d2;cursor:default;background:transparent}
+.qs-prov-list{max-height:236px;overflow-y:auto;display:flex;flex-direction:column;gap:1px}
+.qs-prov-opt{display:flex;align-items:center;gap:10px;padding:8px;border-radius:7px;cursor:pointer;font-size:13.5px;color:var(--app-ink)}
+.qs-prov-opt:hover{background:#f6f7f9}
+.qs-prov-opt .bx{width:17px;height:17px;flex:none;border:1.6px solid #c4c9d2;border-radius:5px;display:grid;place-items:center;background:#fff;transition:all .15s}
+.qs-prov-opt .bx svg{width:11px;height:11px;stroke:#fff;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+.qs-prov-opt.on .bx{background:var(--app-maroon);border-color:var(--app-maroon)}
+.qs-prov-opt.on .bx svg{opacity:1}
+.qs-prov-opt .nm{flex:1}
+.qs-prov-opt .ct{font-family:var(--mono);font-size:11px;color:#9095a1}
+.qs-prov-opt .sw{width:11px;height:11px;border-radius:3px;flex:none}
+.qs-prov-full{display:block} .qs-prov-full .qs-prov-btn{width:100%;max-width:none}
+.qs-prov-full .qs-prov-pop{width:100%}
+.qs-prov-btn:disabled{background:#f3f4f6;color:#9095a1;cursor:not-allowed}
+.qs-prov-btn:disabled .pin,.qs-prov-btn:disabled .chev{opacity:.45}
+.qs-prov-empty{padding:16px;text-align:center;font-size:13px;color:var(--app-muted)}
+.qs-empty .acts{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+
 /* batch bar */
 .qs-batch{display:none;align-items:center;gap:14px;background:#2b0a0a;color:#fff;border-radius:12px;padding:10px 16px;margin-bottom:14px}
 .qs-batch.show{display:flex}
@@ -270,6 +308,12 @@ body{background:var(--app-bg);color:var(--app-ink)}
   .qs-legend{margin-left:0;width:100%}
   .qs-grid2{grid-template-columns:1fr}
 }
+@media (max-width:560px){
+  .qs-search{max-width:none;flex:1 1 100%}
+  .qs-prov{width:100%}
+  .qs-prov-btn{width:100%;max-width:none}
+  .qs-prov-pop{width:100%}
+}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -335,20 +379,55 @@ body{background:var(--app-bg);color:var(--app-ink)}
         <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
         <input id="search" type="search" placeholder="Tìm theo tên cụm hoặc địa chỉ…"/>
       </label>
-      <div class="qs-sports" id="sportFilter">
-        <button class="qs-chip on" data-sport="all">Tất cả môn</button>
-        <button class="qs-chip" data-sport="cau-long">Cầu lông</button>
-        <button class="qs-chip" data-sport="tennis">Tennis</button>
-        <button class="qs-chip" data-sport="bong-ro">Bóng rổ</button>
-        <button class="qs-chip" data-sport="bong-chuyen">Bóng chuyền</button>
-        <button class="qs-chip" data-sport="futsal">Futsal</button>
+      <div class="qs-prov" id="provWrap">
+        <button class="qs-prov-btn" id="provBtn" type="button" aria-haspopup="listbox" aria-expanded="false">
+          <svg class="pin" viewBox="0 0 24 24"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          <span class="qs-prov-label" id="provLabel">Tất cả tỉnh/thành</span>
+          <svg class="chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="qs-prov-pop" id="provPop" role="listbox" aria-label="Lọc theo tỉnh/thành">
+          <label class="qs-prov-search">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            <input id="provSearch" type="text" placeholder="Tìm tỉnh/thành..." autocomplete="off"/>
+          </label>
+          <div class="qs-prov-acts">
+            <button type="button" id="provAll">Chọn tất cả</button>
+            <button type="button" id="provClear" disabled>Bỏ chọn tất cả</button>
+          </div>
+          <div class="qs-prov-list" id="provList"></div>
+        </div>
       </div>
-      <div class="qs-legend">
-        <span class="lg"><span class="sw" style="background:var(--s-hard)"></span>Sân cứng</span>
-        <span class="lg"><span class="sw" style="background:var(--s-clay)"></span>Đất nện</span>
-        <span class="lg"><span class="sw" style="background:var(--s-grass)"></span>Cỏ</span>
-        <span class="lg"><span class="sw" style="background:var(--s-wood)"></span>Gỗ</span>
-        <span class="lg"><span class="sw" style="background:var(--s-synthetic)"></span>Nhân tạo</span>
+      <div class="qs-prov" id="sportWrap">
+        <button class="qs-prov-btn" id="sportBtn" type="button" aria-haspopup="listbox" aria-expanded="false">
+          <svg class="pin" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M5 5c4 3 4 11 0 14M19 5c-4 3-4 11 0 14"/></svg>
+          <span class="qs-prov-label" id="sportLabel">Tất cả môn</span>
+          <svg class="chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="qs-prov-pop" id="sportPop" role="listbox" aria-label="Lọc theo môn thể thao">
+          <label class="qs-prov-search">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            <input id="sportSearch" type="text" placeholder="Tìm môn thể thao..." autocomplete="off"/>
+          </label>
+          <div class="qs-prov-acts">
+            <button type="button" id="sportAll">Chọn tất cả</button>
+            <button type="button" id="sportClear" disabled>Bỏ chọn tất cả</button>
+          </div>
+          <div class="qs-prov-list" id="sportList"></div>
+        </div>
+      </div>
+      <div class="qs-prov" id="surfWrap">
+        <button class="qs-prov-btn" id="surfBtn" type="button" aria-haspopup="listbox" aria-expanded="false">
+          <svg class="pin" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.2"/><rect x="14" y="3" width="7" height="7" rx="1.2"/><rect x="3" y="14" width="7" height="7" rx="1.2"/><rect x="14" y="14" width="7" height="7" rx="1.2"/></svg>
+          <span class="qs-prov-label" id="surfLabel">Tất cả mặt sân</span>
+          <svg class="chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="qs-prov-pop" id="surfPop" role="listbox" aria-label="Lọc theo loại mặt sân">
+          <div class="qs-prov-acts">
+            <button type="button" id="surfAll">Chọn tất cả</button>
+            <button type="button" id="surfClear" disabled>Bỏ chọn tất cả</button>
+          </div>
+          <div class="qs-prov-list" id="surfList"></div>
+        </div>
       </div>
     </div>
 
@@ -369,9 +448,12 @@ body{background:var(--app-bg);color:var(--app-ink)}
 
     <div class="qs-empty" id="empty">
       <svg class="ic" viewBox="0 0 64 54" fill="none" stroke="#c7ccd6" stroke-width="2"><rect x="2" y="6" width="60" height="42" rx="4"/><path d="M32 6v42M2 27h60"/><circle cx="32" cy="27" r="5"/></svg>
-      <b>Chưa có cụm sân nào khớp bộ lọc</b>
-      <p>Đổi môn / từ khoá tìm kiếm, hoặc tạo cụm sân chuẩn đầu tiên.</p>
-      <button class="qs-btn primary" type="button" onclick="document.getElementById('addBtn').click()" style="margin:0 auto"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Tạo cụm sân đầu tiên</button>
+      <b>Không tìm thấy cụm sân phù hợp</b>
+      <p>Không tìm thấy cụm sân phù hợp với bộ lọc hiện tại.</p>
+      <div class="acts">
+        <button class="qs-btn" type="button" id="clearFilters"><svg viewBox="0 0 24 24"><path d="M3 6h18M7 12h10M11 18h2"/></svg>Xóa bộ lọc</button>
+        <button class="qs-btn primary" type="button" onclick="document.getElementById('addBtn').click()"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Tạo cụm sân</button>
+      </div>
     </div>
    </div>
    <footer class="app-foot">© 2025 <span class="rv">RONGVIET</span>GROUP.COM.VN · Thư viện cụm sân chuẩn — chỉ Quản trị viên chỉnh sửa.</footer>
@@ -391,7 +473,36 @@ body{background:var(--app-bg);color:var(--app-ink)}
       <div class="qs-field"><label for="fCode">Mã (code)</label><input class="qs-input mono" id="fCode" type="text" placeholder="tu-dong-tu-ten"/><div class="qs-hint">Tự sinh từ tên, có thể sửa. Duy nhất toàn hệ thống.</div></div>
       <div class="qs-field"><label for="fVenue">Tên nhà thi đấu</label><input class="qs-input" id="fVenue" type="text" placeholder="VD: NTĐ Hòa Xuân"/></div>
     </div>
-    <div class="qs-field"><label for="fAddr">Địa chỉ</label><input class="qs-input" id="fAddr" type="text" placeholder="VD: Hòa Xuân, Đà Nẵng"/></div>
+    <div class="qs-grid2">
+      <div class="qs-field" style="margin:0"><label>Tỉnh / Thành phố</label>
+        <div class="qs-prov qs-prov-full" id="fProvWrap">
+          <button class="qs-prov-btn" id="fProvBtn" type="button" aria-haspopup="listbox" aria-expanded="false">
+            <svg class="pin" viewBox="0 0 24 24"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span class="qs-prov-label" id="fProvLabel">— Chọn tỉnh/thành —</span>
+            <svg class="chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="qs-prov-pop" id="fProvPop" role="listbox" aria-label="Chọn tỉnh/thành">
+            <label class="qs-prov-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="fProvSearch" type="text" placeholder="Tìm tỉnh/thành..." autocomplete="off"/></label>
+            <div class="qs-prov-list" id="fProvList"></div>
+          </div>
+        </div>
+        <div class="qs-hint" id="fAUhint">Nguồn: provinces.open-api.vn (đơn vị hành chính mới, 2 cấp)</div>
+      </div>
+      <div class="qs-field" style="margin:0"><label>Phường / Xã</label>
+        <div class="qs-prov qs-prov-full" id="fWardWrap">
+          <button class="qs-prov-btn" id="fWardBtn" type="button" aria-haspopup="listbox" aria-expanded="false" disabled>
+            <svg class="pin" viewBox="0 0 24 24"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M15 9h.01M9 13h.01M15 13h.01"/></svg>
+            <span class="qs-prov-label" id="fWardLabel">— Chọn tỉnh/thành trước —</span>
+            <svg class="chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+          </button>
+          <div class="qs-prov-pop" id="fWardPop" role="listbox" aria-label="Chọn phường/xã">
+            <label class="qs-prov-search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input id="fWardSearch" type="text" placeholder="Tìm phường/xã..." autocomplete="off"/></label>
+            <div class="qs-prov-list" id="fWardList"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="qs-field" style="margin-top:14px"><label for="fAddr">Địa chỉ chi tiết</label><input class="qs-input" id="fAddr" type="text" placeholder="Số nhà, tên đường… (VD: 233 Lê Thanh Nghị)"/></div>
     <div class="qs-field">
       <label>Vị trí trên bản đồ</label>
       <div class="qs-map"><iframe id="map" title="Bản đồ vị trí cụm sân" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
@@ -452,6 +563,21 @@ body{background:var(--app-bg);color:var(--app-ink)}
   </div>
 </div>
 
+<!-- ======================= CONFIRM MODAL ======================= -->
+<div class="qs-modal" id="confirmModal">
+  <div class="bg" id="confirmBg"></div>
+  <div class="qs-modal-card" style="max-width:420px">
+    <div class="qs-modal-head"><h3 id="confirmTitle">Xác nhận xoá</h3>
+      <button class="qs-x" id="confirmX" type="button" aria-label="Đóng"><svg viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+    </div>
+    <div class="qs-modal-body"><p id="confirmMsg" style="font-size:14.5px;color:var(--app-ink);line-height:1.6">Bạn có chắc chắn muốn xoá?</p></div>
+    <div class="qs-modal-foot">
+      <button class="qs-btn" id="confirmCancel" type="button">Hủy</button>
+      <button class="qs-btn primary" id="confirmOk" type="button" style="background:#dc2626;border-color:#dc2626;box-shadow:0 8px 18px -8px rgba(220,38,38,.7)"><svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg>Xoá</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){
   var SPORTS={'cau-long':'Cầu lông','tennis':'Tennis','bong-ro':'Bóng rổ','bong-chuyen':'Bóng chuyền','futsal':'Futsal','bong-da-7':'Bóng đá 7'};
@@ -477,6 +603,21 @@ body{background:var(--app-bg);color:var(--app-ink)}
       court('Court 1','CLAY','OUTDOOR',23.8,11,100,true),court('Court 2','CLAY','OUTDOOR',23.8,11,100,true),
       court('Court 3','CLAY','OUTDOOR',23.8,11,60,false),court('Court 4','HARD','INDOOR',23.8,11,250,true)]}
   ];
+
+  // ----- Master administrative units (TỈNH/THÀNH) -----
+  // NOTE BE: thay PROVINCES bằng API master administrative units; FE không parse tỉnh từ address string.
+  var PROVINCES=[
+    {code:'ha-noi',name:'Hà Nội'},{code:'hcm',name:'TP. Hồ Chí Minh'},{code:'da-nang',name:'Đà Nẵng'},
+    {code:'hai-phong',name:'Hải Phòng'},{code:'can-tho',name:'Cần Thơ'},{code:'binh-duong',name:'Bình Dương'},
+    {code:'dong-nai',name:'Đồng Nai'},{code:'ba-ria-vung-tau',name:'Bà Rịa - Vũng Tàu'},{code:'khanh-hoa',name:'Khánh Hòa'},
+    {code:'lam-dong',name:'Lâm Đồng'},{code:'thua-thien-hue',name:'Thừa Thiên Huế'},{code:'quang-nam',name:'Quảng Nam'},
+    {code:'quang-ninh',name:'Quảng Ninh'},{code:'nghe-an',name:'Nghệ An'},{code:'thanh-hoa',name:'Thanh Hóa'},
+    {code:'bac-ninh',name:'Bắc Ninh'},{code:'binh-dinh',name:'Bình Định'},{code:'dak-lak',name:'Đắk Lắk'}
+  ];
+  // mock province_code/province_name cho data mẫu (BE cần trả field thật trên venue cluster)
+  var CL_PROV={'cum-san-hoa-xuan':'da-nang','cum-san-my-dinh':'ha-noi','tt-tdtt-phu-tho':'hcm','ntd-tien-son':'da-nang','cum-san-thong-nhat':'hcm','san-quan-vot-lan-anh':'hcm'};
+  CLUSTERS.forEach(function(c){c.province_code=CL_PROV[c.code]||'';
+    c.province_name=(PROVINCES.filter(function(p){return p.code===c.province_code;})[0]||{}).name||'';});
 
   // ----- mini court-plan SVG (signature) -----
   function planSVG(courts){
@@ -505,9 +646,11 @@ body{background:var(--app-bg);color:var(--app-ink)}
 
   // ----- render list -----
   var list=document.getElementById('list'), empty=document.getElementById('empty');
-  var fSport='all', fQ='', selected={};
+  var fSportSel=[], fSurfSel=[], fQ='', fProv=[], selected={};
   function visible(){return CLUSTERS.filter(function(c){
-    return (fSport==='all'||c.sports.indexOf(fSport)>-1)
+    return (fSportSel.length===0||c.sports.some(function(s){return fSportSel.indexOf(s)>-1;}))
+      && (fSurfSel.length===0||c.courts.some(function(ct){return fSurfSel.indexOf(ct.surface)>-1;}))
+      && (fProv.length===0||fProv.indexOf(c.province_code)>-1)
       && (fQ===''||(c.name+' '+c.address+' '+c.venue).toLowerCase().indexOf(fQ)>-1);});}
   function render(){
     var v=visible(); list.innerHTML='';
@@ -536,11 +679,125 @@ body{background:var(--app-bg);color:var(--app-ink)}
   function find(code){return CLUSTERS.filter(function(c){return c.code===code;})[0];}
 
   // ----- filters -----
-  document.getElementById('sportFilter').addEventListener('click',function(e){
-    var b=e.target.closest('.qs-chip'); if(!b)return;
-    this.querySelectorAll('.qs-chip').forEach(function(x){x.classList.remove('on');});
-    b.classList.add('on'); fSport=b.dataset.sport; render();});
+  // ----- sport multi-select -----
+  var sportWrap=document.getElementById('sportWrap');
+  var SPORT_KEYS=Object.keys(SPORTS);
+  function sportLabel(){
+    var l=document.getElementById('sportLabel');
+    if(fSportSel.length===0){l.textContent='Tất cả môn';sportWrap.classList.remove('has');}
+    else if(fSportSel.length===1){l.textContent=SPORTS[fSportSel[0]];sportWrap.classList.add('has');}
+    else{l.textContent='Đã chọn '+fSportSel.length+' môn';sportWrap.classList.add('has');}
+  }
+  function renderSport(){
+    var q=(document.getElementById('sportSearch').value||'').trim().toLowerCase();
+    var box=document.getElementById('sportList');
+    var ks=SPORT_KEYS.filter(function(k){return !q||SPORTS[k].toLowerCase().indexOf(q)>-1;});
+    if(!ks.length){box.innerHTML='<div class="qs-prov-empty">Không tìm thấy môn thể thao.</div>';}
+    else{box.innerHTML=ks.map(function(k){
+      var n=CLUSTERS.filter(function(c){return c.sports.indexOf(k)>-1;}).length;
+      return '<div class="qs-prov-opt'+(fSportSel.indexOf(k)>-1?' on':'')+'" data-key="'+k+'" role="option" aria-selected="'+(fSportSel.indexOf(k)>-1)+'">'+
+        '<span class="bx"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>'+
+        '<span class="nm">'+SPORTS[k]+'</span><span class="ct">'+n+'</span></div>';}).join('');}
+    document.getElementById('sportClear').disabled=fSportSel.length===0;
+  }
+  document.getElementById('sportBtn').addEventListener('click',function(e){
+    e.stopPropagation();var open=sportWrap.classList.toggle('open');
+    this.setAttribute('aria-expanded',open);
+    if(open){renderSport();document.getElementById('sportSearch').focus();}});
+  document.getElementById('sportPop').addEventListener('click',function(e){e.stopPropagation();});
+  document.getElementById('sportSearch').addEventListener('input',renderSport);
+  document.getElementById('sportList').addEventListener('click',function(e){
+    var o=e.target.closest('.qs-prov-opt'); if(!o)return;
+    var k=o.dataset.key,i=fSportSel.indexOf(k);
+    if(i>-1)fSportSel.splice(i,1); else fSportSel.push(k);
+    sportLabel();renderSport();render();});
+  document.getElementById('sportAll').addEventListener('click',function(){
+    fSportSel=SPORT_KEYS.slice();sportLabel();renderSport();render();});
+  document.getElementById('sportClear').addEventListener('click',function(){
+    fSportSel=[];sportLabel();renderSport();render();});
+  document.addEventListener('click',function(e){if(!sportWrap.contains(e.target))sportWrap.classList.remove('open');});
+
+  // ----- surface (mặt sân) multi-select -----
+  var surfWrap=document.getElementById('surfWrap');
+  var SURF_KEYS=Object.keys(SURF);
+  function surfLabel(){
+    var l=document.getElementById('surfLabel');
+    if(fSurfSel.length===0){l.textContent='Tất cả mặt sân';surfWrap.classList.remove('has');}
+    else if(fSurfSel.length===1){l.textContent=SURF[fSurfSel[0]].vi;surfWrap.classList.add('has');}
+    else{l.textContent='Đã chọn '+fSurfSel.length+' mặt sân';surfWrap.classList.add('has');}
+  }
+  function renderSurf(){
+    var box=document.getElementById('surfList');
+    box.innerHTML=SURF_KEYS.map(function(k){
+      var n=CLUSTERS.filter(function(c){return c.courts.some(function(ct){return ct.surface===k;});}).length;
+      return '<div class="qs-prov-opt'+(fSurfSel.indexOf(k)>-1?' on':'')+'" data-key="'+k+'" role="option" aria-selected="'+(fSurfSel.indexOf(k)>-1)+'">'+
+        '<span class="bx"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>'+
+        '<span class="sw" style="background:'+SURF[k].c+'"></span>'+
+        '<span class="nm">'+SURF[k].vi+'</span><span class="ct">'+n+'</span></div>';}).join('');
+    document.getElementById('surfClear').disabled=fSurfSel.length===0;
+  }
+  document.getElementById('surfBtn').addEventListener('click',function(e){
+    e.stopPropagation();var open=surfWrap.classList.toggle('open');
+    this.setAttribute('aria-expanded',open);
+    if(open)renderSurf();});
+  document.getElementById('surfPop').addEventListener('click',function(e){e.stopPropagation();});
+  document.getElementById('surfList').addEventListener('click',function(e){
+    var o=e.target.closest('.qs-prov-opt'); if(!o)return;
+    var k=o.dataset.key,i=fSurfSel.indexOf(k);
+    if(i>-1)fSurfSel.splice(i,1); else fSurfSel.push(k);
+    surfLabel();renderSurf();render();});
+  document.getElementById('surfAll').addEventListener('click',function(){
+    fSurfSel=SURF_KEYS.slice();surfLabel();renderSurf();render();});
+  document.getElementById('surfClear').addEventListener('click',function(){
+    fSurfSel=[];surfLabel();renderSurf();render();});
+  document.addEventListener('click',function(e){if(!surfWrap.contains(e.target))surfWrap.classList.remove('open');});
   document.getElementById('search').addEventListener('input',function(){fQ=this.value.trim().toLowerCase();render();});
+
+  // ----- province multi-select -----
+  var provWrap=document.getElementById('provWrap');
+  function provLabel(){
+    var l=document.getElementById('provLabel');
+    if(fProv.length===0){l.textContent='Tất cả tỉnh/thành';provWrap.classList.remove('has');}
+    else if(fProv.length===1){l.textContent=(PROVINCES.filter(function(p){return p.code===fProv[0];})[0]||{}).name;provWrap.classList.add('has');}
+    else{l.textContent='Đã chọn '+fProv.length+' tỉnh/thành';provWrap.classList.add('has');}
+  }
+  function renderProv(){
+    var q=(document.getElementById('provSearch').value||'').trim().toLowerCase();
+    var box=document.getElementById('provList');
+    var ps=PROVINCES.filter(function(p){return !q||p.name.toLowerCase().indexOf(q)>-1;});
+    if(!ps.length){box.innerHTML='<div class="qs-prov-empty">Không tìm thấy tỉnh/thành.</div>';}
+    else{box.innerHTML=ps.map(function(p){
+      var n=CLUSTERS.filter(function(c){return c.province_code===p.code;}).length;
+      return '<div class="qs-prov-opt'+(fProv.indexOf(p.code)>-1?' on':'')+'" data-code="'+p.code+'" role="option" aria-selected="'+(fProv.indexOf(p.code)>-1)+'">'+
+        '<span class="bx"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span>'+
+        '<span class="nm">'+p.name+'</span><span class="ct">'+n+'</span></div>';}).join('');}
+    document.getElementById('provClear').disabled=fProv.length===0;
+  }
+  document.getElementById('provBtn').addEventListener('click',function(e){
+    e.stopPropagation();var open=provWrap.classList.toggle('open');
+    this.setAttribute('aria-expanded',open);
+    if(open){renderProv();document.getElementById('provSearch').focus();}});
+  document.getElementById('provPop').addEventListener('click',function(e){e.stopPropagation();});
+  document.getElementById('provSearch').addEventListener('input',renderProv);
+  document.getElementById('provList').addEventListener('click',function(e){
+    var o=e.target.closest('.qs-prov-opt'); if(!o)return;
+    var code=o.dataset.code,i=fProv.indexOf(code);
+    if(i>-1)fProv.splice(i,1); else fProv.push(code);
+    provLabel();renderProv();render();});
+  document.getElementById('provAll').addEventListener('click',function(){
+    fProv=PROVINCES.map(function(p){return p.code;});provLabel();renderProv();render();});
+  document.getElementById('provClear').addEventListener('click',function(){
+    fProv=[];provLabel();renderProv();render();});
+  document.addEventListener('click',function(e){if(!provWrap.contains(e.target))provWrap.classList.remove('open');});
+
+  // ----- xoá toàn bộ bộ lọc (empty state) -----
+  function clearAllFilters(){
+    fQ='';document.getElementById('search').value='';
+    fSportSel=[];sportLabel();renderSport();
+    fSurfSel=[];surfLabel();renderSurf();
+    fProv=[];provLabel();renderProv();render();
+  }
+  document.getElementById('clearFilters').addEventListener('click',clearAllFilters);
 
   // ----- batch select + row interactions -----
   var batchBar=document.getElementById('batchBar');
@@ -549,18 +806,28 @@ body{background:var(--app-bg);color:var(--app-ink)}
     document.getElementById('batchCount').textContent=keys.length;
     batchBar.classList.toggle('show',keys.length>0);
   }
+  // ----- custom confirm (window.confirm bị chặn trong preview sandbox) -----
+  var cfModal=document.getElementById('confirmModal'),cfOnOk=null;
+  function askConfirm(msg,onOk){document.getElementById('confirmMsg').textContent=msg;cfOnOk=onOk;cfModal.classList.add('show');}
+  function cfClose(){cfModal.classList.remove('show');cfOnOk=null;}
+  document.getElementById('confirmCancel').onclick=cfClose;
+  document.getElementById('confirmX').onclick=cfClose;
+  document.getElementById('confirmBg').onclick=cfClose;
+  document.getElementById('confirmOk').onclick=function(){var fn=cfOnOk;cfClose();if(fn)fn();};
+
   list.addEventListener('click',function(e){
     var row=e.target.closest('.qs-row'); if(!row)return; var c=find(row.dataset.code);
     if(e.target.closest('.qs-check')){selected[c.code]=!selected[c.code];render();return;}
     if(e.target.closest('.qs-toggle')){c.active=!c.active;render();e.stopPropagation();return;}
-    if(e.target.closest('.qs-iact.del')){if(confirm('Xoá cụm “'+c.name+'”?')){var i=CLUSTERS.indexOf(c);CLUSTERS.splice(i,1);delete selected[c.code];render();}return;}
+    if(e.target.closest('.qs-iact.del')){askConfirm('Xoá cụm “'+c.name+'”? Thao tác này không thể hoàn tác.',function(){var i=CLUSTERS.indexOf(c);CLUSTERS.splice(i,1);delete selected[c.code];render();});return;}
     openDrawer(c); // row click or edit
   });
   document.getElementById('bClear').onclick=function(){selected={};render();};
   document.getElementById('bOn').onclick=function(){Object.keys(selected).forEach(function(k){if(selected[k])find(k).active=true;});render();};
   document.getElementById('bOff').onclick=function(){Object.keys(selected).forEach(function(k){if(selected[k])find(k).active=false;});render();};
   document.getElementById('bDel').onclick=function(){var ks=Object.keys(selected).filter(function(k){return selected[k];});
-    if(ks.length&&confirm('Xoá '+ks.length+' cụm đã chọn?')){CLUSTERS=CLUSTERS.filter(function(c){return !selected[c.code];});selected={};render();}};
+    if(!ks.length)return;
+    askConfirm('Xoá '+ks.length+' cụm đã chọn? Thao tác này không thể hoàn tác.',function(){CLUSTERS=CLUSTERS.filter(function(c){return !selected[c.code];});selected={};render();});};
 
   // ----- drawer -----
   var scrim=document.getElementById('scrim'),drawer=document.getElementById('drawer'),ctRows=document.getElementById('ctRows');
@@ -598,6 +865,96 @@ body{background:var(--app-bg);color:var(--app-ink)}
   ['fLat','fLng'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){
     updateMap(document.getElementById('fLat').value,document.getElementById('fLng').value);});});
 
+  // ---- Administrative units: provinces.open-api.vn v2 (depth=2 → Tỉnh/Thành → Phường/Xã) ----
+  var AU_URL='https://provinces.open-api.vn/api/v2/?depth=2';
+  var AU_DATA=null, AU_LOADING=null;
+  function loadAU(){
+    if(AU_DATA)return Promise.resolve(AU_DATA);
+    if(AU_LOADING)return AU_LOADING;
+    AU_LOADING=fetch(AU_URL).then(function(r){if(!r.ok)throw 0;return r.json();})
+      .then(function(d){AU_DATA=Array.isArray(d)?d:(d.data||[]);return AU_DATA;})
+      .catch(function(){ // offline/CORS → fallback: chỉ tỉnh từ master, chưa có phường/xã
+        AU_DATA=PROVINCES.map(function(p){return {code:p.code,name:p.name,wards:[]};});
+        var h=document.getElementById('fAUhint');
+        if(h){h.textContent='Không tải được API hành chính — dùng danh sách tỉnh tạm (cần kết nối mạng để có phường/xã).';h.style.color='#b45309';}
+        return AU_DATA;});
+    return AU_LOADING;
+  }
+  function auNorm(s){return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/\b(thanh pho|tinh|tp|quan|huyen|phuong|xa|thi xa|thi tran)\b/g,'').replace(/[^a-z0-9]/g,'');}
+  // single-select dropdown (giống dropdown filter) cho Tỉnh/Thành & Phường/Xã
+  var auProv=null, auWard=null;
+  function optHTML(name,code,on){return '<div class="qs-prov-opt'+(on?' on':'')+'" data-code="'+code+'" role="option" aria-selected="'+(!!on)+'">'+
+    '<span class="bx"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span><span class="nm">'+name+'</span></div>';}
+  function renderProvOpts(){
+    var q=auNorm(document.getElementById('fProvSearch').value);
+    var list=(AU_DATA||[]).filter(function(p){return !q||auNorm(p.name).indexOf(q)>-1;});
+    document.getElementById('fProvList').innerHTML=list.length
+      ? list.map(function(p){return optHTML(p.name,p.code,auProv&&String(auProv.code)===String(p.code));}).join('')
+      : '<div class="qs-prov-empty">Không tìm thấy tỉnh/thành.</div>';
+  }
+  function renderWardOpts(){
+    var q=auNorm(document.getElementById('fWardSearch').value);
+    var wards=(auProv&&auProv.wards)||[];
+    var list=wards.filter(function(w){return !q||auNorm(w.name).indexOf(q)>-1;});
+    document.getElementById('fWardList').innerHTML=list.length
+      ? list.map(function(w){return optHTML(w.name,w.code,auWard&&String(auWard.code)===String(w.code));}).join('')
+      : '<div class="qs-prov-empty">'+(wards.length?'Không tìm thấy phường/xã.':'(Chưa có dữ liệu phường/xã)')+'</div>';
+  }
+  function setWardEnabled(on){
+    document.getElementById('fWardBtn').disabled=!on;
+    document.getElementById('fWardWrap').classList.toggle('disabled',!on);
+  }
+  function selectProv(p,keepWard){
+    auProv=p||null;
+    document.getElementById('fProvLabel').textContent=p?p.name:'— Chọn tỉnh/thành —';
+    document.getElementById('fProvWrap').classList.toggle('has',!!p);
+    if(!keepWard){auWard=null;document.getElementById('fWardLabel').textContent=p?'— Chọn phường/xã —':'— Chọn tỉnh/thành trước —';document.getElementById('fWardWrap').classList.remove('has');}
+    setWardEnabled(!!(p&&(p.wards||[]).length));
+    renderWardOpts();
+  }
+  function selectWard(w){
+    auWard=w||null;
+    document.getElementById('fWardLabel').textContent=w?w.name:'— Chọn phường/xã —';
+    document.getElementById('fWardWrap').classList.toggle('has',!!w);
+  }
+  function setupAU(draft){
+    auProv=null;auWard=null;
+    var pw=document.getElementById('fProvWrap'),ww=document.getElementById('fWardWrap');
+    pw.classList.remove('has','open');ww.classList.remove('has','open');
+    document.getElementById('fProvLabel').textContent='Đang tải…';
+    document.getElementById('fWardLabel').textContent='— Chọn tỉnh/thành trước —';
+    document.getElementById('fProvSearch').value='';document.getElementById('fWardSearch').value='';
+    setWardEnabled(false);
+    loadAU().then(function(list){
+      document.getElementById('fProvLabel').textContent='— Chọn tỉnh/thành —';
+      renderProvOpts();
+      var mp=list.filter(function(p){return auNorm(p.name)===auNorm(draft.province_name);})[0];
+      if(mp){selectProv(mp,true);
+        var mw=(mp.wards||[]).filter(function(w){return auNorm(w.name)===auNorm(draft.ward_name);})[0];
+        if(mw)selectWard(mw);
+        renderProvOpts();renderWardOpts();}
+    });
+  }
+  (function(){
+    var pw=document.getElementById('fProvWrap'),ww=document.getElementById('fWardWrap');
+    document.getElementById('fProvBtn').addEventListener('click',function(e){e.stopPropagation();ww.classList.remove('open');
+      var o=pw.classList.toggle('open');this.setAttribute('aria-expanded',o);
+      if(o){document.getElementById('fProvSearch').value='';renderProvOpts();document.getElementById('fProvSearch').focus();}});
+    document.getElementById('fProvPop').addEventListener('click',function(e){e.stopPropagation();});
+    document.getElementById('fProvSearch').addEventListener('input',renderProvOpts);
+    document.getElementById('fProvList').addEventListener('click',function(e){var o=e.target.closest('.qs-prov-opt');if(!o)return;
+      selectProv((AU_DATA||[]).filter(function(x){return String(x.code)===String(o.dataset.code);})[0]);pw.classList.remove('open');});
+    document.getElementById('fWardBtn').addEventListener('click',function(e){e.stopPropagation();if(this.disabled)return;pw.classList.remove('open');
+      var o=ww.classList.toggle('open');this.setAttribute('aria-expanded',o);
+      if(o){document.getElementById('fWardSearch').value='';renderWardOpts();document.getElementById('fWardSearch').focus();}});
+    document.getElementById('fWardPop').addEventListener('click',function(e){e.stopPropagation();});
+    document.getElementById('fWardSearch').addEventListener('input',renderWardOpts);
+    document.getElementById('fWardList').addEventListener('click',function(e){var o=e.target.closest('.qs-prov-opt');if(!o)return;
+      selectWard(((auProv&&auProv.wards)||[]).filter(function(x){return String(x.code)===String(o.dataset.code);})[0]);ww.classList.remove('open');});
+    document.addEventListener('click',function(e){if(!pw.contains(e.target)&&!ww.contains(e.target)){pw.classList.remove('open');ww.classList.remove('open');}});
+  })();
+
   function openDrawer(c){
     draft=c||{code:'',name:'',venue:'',address:'',lat:'',lng:'',sports:[],active:true,courts:[]};
     document.getElementById('drTitle').textContent=c?'Sửa cụm sân':'Thêm cụm sân mới';
@@ -605,6 +962,7 @@ body{background:var(--app-bg);color:var(--app-ink)}
     document.getElementById('fVenue').value=draft.venue; document.getElementById('fAddr').value=draft.address;
     document.getElementById('fLat').value=draft.lat; document.getElementById('fLng').value=draft.lng;
     updateMap(draft.lat,draft.lng);
+    setupAU(draft);
     var sp=draft.sports.slice(); renderSports(sp); draft._sp=sp;
     document.getElementById('addSport').onchange=function(){if(this.value&&sp.indexOf(this.value)<0){sp.push(this.value);renderSports(sp);}this.value='';};
     ctRows.innerHTML=''; (draft.courts.length?draft.courts:[court('Sân 1','HARD','INDOOR',18,9,100,true)]).forEach(function(ct,i){ctRows.appendChild(courtRow(ct,i));});
@@ -613,7 +971,14 @@ body{background:var(--app-bg);color:var(--app-ink)}
   function closeDrawer(){scrim.classList.remove('show');drawer.classList.remove('show');}
   document.getElementById('addBtn').onclick=function(){openDrawer(null);};
   document.getElementById('drClose').onclick=closeDrawer; document.getElementById('drCancel').onclick=closeDrawer; scrim.onclick=closeDrawer;
-  document.getElementById('drSave').onclick=closeDrawer;
+  document.getElementById('drSave').onclick=function(){
+    if(draft){
+      if(auProv){draft.province_code=auProv.code;draft.province_name=auProv.name;
+        draft.ward_code=auWard?auWard.code:'';draft.ward_name=auWard?auWard.name:'';}
+      draft.address=document.getElementById('fAddr').value;
+    }
+    closeDrawer();
+  };
   document.getElementById('addCourt').onclick=function(){ctRows.appendChild(courtRow(court('Sân '+(ctRows.children.length+1),'HARD','INDOOR',18,9,100,false)));};
   // auto-slug code from name (only when adding)
   document.getElementById('fName').addEventListener('input',function(){
@@ -631,7 +996,7 @@ body{background:var(--app-bg);color:var(--app-ink)}
     this.style.display='none'; document.getElementById('impResult').classList.add('show'); document.getElementById('impConfirm').disabled=false;};
   document.getElementById('impConfirm').onclick=function(){closeImp();/* would append imported clusters */};
 
-  document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeDrawer();closeImp();}});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeDrawer();closeImp();cfClose();}});
 
   // ----- Tải file mẫu (works on http via real .xlsx; falls back to CSV on file://) -----
   function trigger(href,name){var a=document.createElement('a');a.href=href;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(href);},2000);}
@@ -642,9 +1007,9 @@ body{background:var(--app-bg);color:var(--app-ink)}
       .then(function(b){trigger(URL.createObjectURL(b),'manage-location-clusters-template.xlsx');})
       .catch(function(){
         var rows=[
-          ['cluster_code','name','venue_name','address','latitude','longitude','sports','is_active'],
-          ['cum-san-hoa-xuan','Cụm sân Hòa Xuân','NTĐ Hòa Xuân','Hòa Xuân, Đà Nẵng','16.0312','108.2249','cau-long,tennis','true'],
-          ['','(VÍ DỤ — xoá dòng này trước khi nhập thật)','','','','','cau-long','true']
+          ['cluster_code','name','venue_name','province','ward','address','latitude','longitude','sports','is_active'],
+          ['cum-san-hoa-xuan','Cụm sân Hòa Xuân','Khu LHTT Hòa Xuân','Đà Nẵng','Hòa Xuân','Đường số 9, KĐT Hòa Xuân','16.0312','108.2249','cau-long-don,cau-long-doi','true'],
+          ['','(VÍ DỤ — xoá dòng này trước khi nhập thật)','','Đắk Lắk','Tân Lập','Số 2 Nguyễn Tất Thành','12.679','108.05','bong-ban-don','true']
         ];
         var csv='﻿'+rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\r\n');
         trigger(URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),'cum-san-mau.csv');

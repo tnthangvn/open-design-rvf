@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="assets/global.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <style>
 /* ============================================================
    QUẢN LÝ CỤM SÂN — thư viện chuẩn (spec: manage-location-clusters*.md)
@@ -91,6 +93,44 @@ body{background:var(--app-bg);color:var(--app-ink)}
 .qs-legend{margin-left:auto;display:flex;gap:14px;flex-wrap:wrap;font-family:var(--mono);font-size:11.5px;color:var(--app-muted)}
 .qs-legend .lg{display:inline-flex;align-items:center;gap:6px}
 .qs-legend .sw{width:10px;height:10px;border-radius:3px}
+
+/* region filters (province → ward) */
+.qs-filtersel{display:inline-flex;align-items:center;height:38px;border:1px solid var(--app-line);border-radius:9px;background:#fff;position:relative}
+.qs-filtersel svg{width:15px;height:15px;color:var(--app-muted);stroke:currentColor;stroke-width:1.9;fill:none;margin-left:11px;flex:none}
+.qs-filtersel select{appearance:none;border:0;outline:0;background:transparent;font-family:inherit;font-size:13.5px;font-weight:500;color:var(--app-label);padding:0 30px 0 8px;height:100%;cursor:pointer;max-width:178px;text-overflow:ellipsis}
+.qs-filtersel::after{content:"";position:absolute;right:12px;top:50%;width:6px;height:6px;border-right:1.6px solid var(--app-muted);border-bottom:1.6px solid var(--app-muted);transform:translateY(-70%) rotate(45deg);pointer-events:none}
+.qs-filtersel:focus-within{border-color:var(--app-orange);box-shadow:0 0 0 3px rgba(255,151,0,.15)}
+
+/* select-all (header) — indeterminate dash */
+.qs-listhead .qs-check{cursor:pointer}
+.qs-check.ind{background:var(--app-maroon);border-color:var(--app-maroon);position:relative}
+.qs-check.ind svg{opacity:0}
+.qs-check.ind::after{content:"";position:absolute;width:9px;height:2px;background:#fff;border-radius:1px}
+
+/* address + geocode row */
+.qs-addrrow{display:flex;gap:8px;align-items:stretch}
+.qs-addrrow .qs-input{flex:1;min-width:0}
+.qs-geobtn{flex:none;display:inline-flex;align-items:center;gap:6px;padding:0 14px;border-radius:8px;border:1px solid var(--app-maroon);background:#fff;color:var(--app-maroon);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background .15s}
+.qs-geobtn:hover{background:rgba(123,0,0,.06)}
+.qs-geobtn svg{width:15px;height:15px;stroke:currentColor;stroke-width:1.9;fill:none;stroke-linecap:round;stroke-linejoin:round}
+.qs-geobtn.busy{opacity:.55;pointer-events:none}
+.qs-geo-msg{font-size:12.5px;margin-top:8px;display:none;line-height:1.45}
+.qs-geo-msg.show{display:block}
+.qs-geo-msg.err{color:#b91c1c}
+.qs-geo-msg.ok{color:#15803d}
+
+/* leaflet map container + pin state */
+#map{height:100%;width:100%}
+.leaflet-container{font:inherit;background:#e8ebef}
+.qs-pin-state{font-family:var(--mono);font-size:12px;color:var(--app-muted);display:inline-flex;align-items:center;gap:7px}
+.qs-pin-state .dotp{width:8px;height:8px;border-radius:50%;background:#cbd0d8;flex:none}
+.qs-pin-state.set{color:var(--app-ink)}
+.qs-pin-state.set .dotp{background:var(--ok)}
+.qs-geo-adv{margin-top:11px;border-top:1px dashed var(--app-line);padding-top:11px}
+.qs-geo-adv>summary{font-size:12.5px;color:var(--app-muted);cursor:pointer;list-style:none;display:flex;align-items:center;gap:6px;user-select:none}
+.qs-geo-adv>summary::-webkit-details-marker{display:none}
+.qs-geo-adv>summary::before{content:"▸";font-size:10px;transition:transform .15s}
+.qs-geo-adv[open]>summary::before{transform:rotate(90deg)}
 
 /* batch bar */
 .qs-batch{display:none;align-items:center;gap:14px;background:#2b0a0a;color:#fff;border-radius:12px;padding:10px 16px;margin-bottom:14px}
@@ -343,6 +383,14 @@ body{background:var(--app-bg);color:var(--app-ink)}
         <button class="qs-chip" data-sport="bong-chuyen">Bóng chuyền</button>
         <button class="qs-chip" data-sport="futsal">Futsal</button>
       </div>
+      <label class="qs-filtersel" title="Lọc theo Tỉnh/Thành">
+        <svg viewBox="0 0 24 24"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <select id="fProvince" aria-label="Lọc theo tỉnh/thành"><option value="all">Tất cả tỉnh/thành</option></select>
+      </label>
+      <label class="qs-filtersel" title="Lọc theo Xã/Phường">
+        <svg viewBox="0 0 24 24"><path d="M3 21h18M5 21V8l7-5 7 5v13M9 21v-6h6v6"/></svg>
+        <select id="fWard" aria-label="Lọc theo xã/phường"><option value="all">Tất cả xã/phường</option></select>
+      </label>
       <div class="qs-legend">
         <span class="lg"><span class="sw" style="background:var(--s-hard)"></span>Sân cứng</span>
         <span class="lg"><span class="sw" style="background:var(--s-clay)"></span>Đất nện</span>
@@ -363,7 +411,7 @@ body{background:var(--app-bg);color:var(--app-ink)}
     </div>
 
     <div class="qs-listhead">
-      <span></span><span>Sơ đồ</span><span>Cụm sân &amp; địa điểm</span><span>Môn thể thao</span><span style="text-align:center">Số sân</span><span style="text-align:center">Mở</span><span></span>
+      <span class="qs-check" id="checkAll" role="checkbox" aria-checked="false" tabindex="0" title="Chọn / bỏ chọn tất cả"><svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg></span><span>Sơ đồ</span><span>Cụm sân &amp; địa điểm</span><span>Môn thể thao</span><span style="text-align:center">Số sân</span><span style="text-align:center">Mở</span><span></span>
     </div>
     <div class="qs-list" id="list"></div>
 
@@ -391,18 +439,33 @@ body{background:var(--app-bg);color:var(--app-ink)}
       <div class="qs-field"><label for="fCode">Mã (code)</label><input class="qs-input mono" id="fCode" type="text" placeholder="tu-dong-tu-ten"/><div class="qs-hint">Tự sinh từ tên, có thể sửa. Duy nhất toàn hệ thống.</div></div>
       <div class="qs-field"><label for="fVenue">Tên nhà thi đấu</label><input class="qs-input" id="fVenue" type="text" placeholder="VD: NTĐ Hòa Xuân"/></div>
     </div>
-    <div class="qs-field"><label for="fAddr">Địa chỉ</label><input class="qs-input" id="fAddr" type="text" placeholder="VD: Hòa Xuân, Đà Nẵng"/></div>
+    <div class="qs-grid2">
+      <div class="qs-field" style="margin:0"><label for="fProv">Tỉnh / Thành</label><select class="qs-select" id="fProv"></select></div>
+      <div class="qs-field" style="margin:0"><label for="fWardSel">Xã / Phường</label><select class="qs-select" id="fWardSel"></select></div>
+    </div>
+    <div class="qs-field"><label for="fAddr">Địa chỉ chi tiết</label>
+      <div class="qs-addrrow">
+        <input class="qs-input" id="fAddr" type="text" placeholder="Số nhà, đường, phường/xã, tỉnh/thành…"/>
+        <button class="qs-geobtn" id="geoBtn" type="button"><svg viewBox="0 0 24 24"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>Định vị</button>
+      </div>
+      <div class="qs-hint">Nhập địa chỉ rồi bấm <b>Định vị</b> để hệ thống tự tìm vị trí trên bản đồ. Kéo ghim (hoặc bấm vào bản đồ) để chỉnh lại nếu lệch.</div>
+      <div class="qs-geo-msg" id="geoMsg"></div>
+    </div>
     <div class="qs-field">
       <label>Vị trí trên bản đồ</label>
-      <div class="qs-map"><iframe id="map" title="Bản đồ vị trí cụm sân" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>
-      <div class="qs-grid2" style="margin-top:10px">
-        <div class="qs-field" style="margin:0"><label for="fLat">Vĩ độ (latitude)</label><input class="qs-input mono" id="fLat" type="text" placeholder="16.0312"/></div>
-        <div class="qs-field" style="margin:0"><label for="fLng">Kinh độ (longitude)</label><input class="qs-input mono" id="fLng" type="text" placeholder="108.2249"/></div>
+      <div class="qs-map"><div id="map"></div></div>
+      <div class="qs-coords" style="margin-top:9px">
+        <span class="qs-pin-state" id="pinState"><span class="dotp"></span>Chưa ghim vị trí</span>
+        <a class="qs-maplink" id="gmapLink" href="https://www.google.com/maps" target="_blank" rel="noopener" style="margin-left:auto">Mở trên Google Maps ↗</a>
       </div>
-      <div class="qs-coords">
-        <a class="qs-maplink" id="gmapLink" href="https://www.google.com/maps" target="_blank" rel="noopener">Mở trên Google Maps ↗</a>
-        <span class="qs-hint" style="margin:0">Sửa toạ độ để cập nhật bản đồ; bấm “Mở trên Google Maps” để lấy ghim chính xác.</span>
-      </div>
+      <details class="qs-geo-adv">
+        <summary>Toạ độ thủ công (nâng cao)</summary>
+        <div class="qs-grid2" style="margin-top:10px">
+          <div class="qs-field" style="margin:0"><label for="fLat">Vĩ độ (latitude)</label><input class="qs-input mono" id="fLat" type="text" placeholder="16.0312"/></div>
+          <div class="qs-field" style="margin:0"><label for="fLng">Kinh độ (longitude)</label><input class="qs-input mono" id="fLng" type="text" placeholder="108.2249"/></div>
+        </div>
+        <div class="qs-hint" style="margin-top:6px">Tự điền khi định vị / kéo ghim — chỉ sửa tay khi cần khớp toạ độ chính xác.</div>
+      </details>
     </div>
     <div class="qs-field">
       <label>Môn thể thao (tags)</label>
@@ -458,25 +521,29 @@ body{background:var(--app-bg);color:var(--app-ink)}
   var SURF={HARD:{c:'var(--s-hard)',vi:'Sân cứng'},CLAY:{c:'var(--s-clay)',vi:'Đất nện'},GRASS:{c:'var(--s-grass)',vi:'Cỏ'},WOOD:{c:'var(--s-wood)',vi:'Gỗ'},SYNTHETIC:{c:'var(--s-synthetic)',vi:'Nhân tạo'}};
   function court(name,surface,env,w,l,cap,light){return{name:name,surface:surface,env:env,w:w,l:l,cap:cap,light:light};}
   var CLUSTERS=[
-    {code:'cum-san-hoa-xuan',name:'Cụm sân Hòa Xuân',venue:'NTĐ Hòa Xuân',address:'Hòa Xuân, Đà Nẵng',lat:'16.0312',lng:'108.2249',sports:['cau-long','tennis'],active:true,courts:[
+    {code:'cum-san-hoa-xuan',name:'Cụm sân Hòa Xuân',venue:'NTĐ Hòa Xuân',address:'Hòa Xuân, Đà Nẵng',province:'Đà Nẵng',ward:'Hòa Xuân',lat:'16.0312',lng:'108.2249',sports:['cau-long','tennis'],active:true,courts:[
       court('Sân 1','HARD','INDOOR',18,9,200,true),court('Sân 2','HARD','INDOOR',18,9,200,true),court('Sân 3','SYNTHETIC','OUTDOOR',18,9,80,true),
       court('Sân 4','SYNTHETIC','OUTDOOR',18,9,80,false),court('Sân tennis A','HARD','OUTDOOR',23.8,11,150,true),court('Sân tennis B','CLAY','OUTDOOR',23.8,11,150,false)]},
-    {code:'cum-san-my-dinh',name:'Cụm sân Mỹ Đình',venue:'Khu liên hợp Mỹ Đình',address:'Nam Từ Liêm, Hà Nội',lat:'21.0203',lng:'105.7637',sports:['futsal','bong-da-7'],active:true,courts:[
+    {code:'cum-san-my-dinh',name:'Cụm sân Mỹ Đình',venue:'Khu liên hợp Mỹ Đình',address:'Nam Từ Liêm, Hà Nội',province:'Hà Nội',ward:'Mỹ Đình',lat:'21.0203',lng:'105.7637',sports:['futsal','bong-da-7'],active:true,courts:[
       court('Sân futsal 1','SYNTHETIC','INDOOR',40,20,500,true),court('Sân futsal 2','SYNTHETIC','INDOOR',40,20,500,true),
       court('Sân 7 người A','GRASS','OUTDOOR',50,30,300,true),court('Sân 7 người B','GRASS','OUTDOOR',50,30,300,false)]},
-    {code:'tt-tdtt-phu-tho',name:'Trung tâm TDTT Phú Thọ',venue:'NTĐ Phú Thọ',address:'Quận 11, TP. Hồ Chí Minh',lat:'10.7666',lng:'106.6580',sports:['bong-ro','cau-long','bong-chuyen'],active:true,courts:[
+    {code:'tt-tdtt-phu-tho',name:'Trung tâm TDTT Phú Thọ',venue:'NTĐ Phú Thọ',address:'Quận 11, TP. Hồ Chí Minh',province:'TP. Hồ Chí Minh',ward:'Phú Thọ',lat:'10.7666',lng:'106.6580',sports:['bong-ro','cau-long','bong-chuyen'],active:true,courts:[
       court('Sàn chính','WOOD','INDOOR',28,15,2000,true),court('Sân tập 1','WOOD','INDOOR',28,15,150,true),court('Sân tập 2','WOOD','INDOOR',28,15,150,true),
       court('Sân cầu lông 1','SYNTHETIC','INDOOR',13.4,6.1,60,true),court('Sân cầu lông 2','SYNTHETIC','INDOOR',13.4,6.1,60,true),court('Sân cầu lông 3','SYNTHETIC','INDOOR',13.4,6.1,60,false),
       court('Sân bóng chuyền 1','HARD','INDOOR',18,9,120,true),court('Sân bóng chuyền 2','HARD','INDOOR',18,9,120,true)]},
-    {code:'ntd-tien-son',name:'Nhà thi đấu Tiên Sơn',venue:'Cung Tiên Sơn',address:'Hải Châu, Đà Nẵng',lat:'16.0544',lng:'108.2210',sports:['bong-chuyen','bong-ro'],active:true,courts:[
+    {code:'ntd-tien-son',name:'Nhà thi đấu Tiên Sơn',venue:'Cung Tiên Sơn',address:'Hải Châu, Đà Nẵng',province:'Đà Nẵng',ward:'Hải Châu',lat:'16.0544',lng:'108.2210',sports:['bong-chuyen','bong-ro'],active:true,courts:[
       court('Sàn trung tâm','WOOD','INDOOR',28,15,5000,true),court('Sân phụ 1','WOOD','INDOOR',18,9,200,true),court('Sân phụ 2','HARD','INDOOR',18,9,200,false)]},
-    {code:'cum-san-thong-nhat',name:'Cụm sân Thống Nhất',venue:'SVĐ Thống Nhất',address:'Quận 10, TP. Hồ Chí Minh',lat:'10.7700',lng:'106.6630',sports:['tennis'],active:false,courts:[
+    {code:'cum-san-thong-nhat',name:'Cụm sân Thống Nhất',venue:'SVĐ Thống Nhất',address:'Quận 10, TP. Hồ Chí Minh',province:'TP. Hồ Chí Minh',ward:'Hòa Hưng',lat:'10.7700',lng:'106.6630',sports:['tennis'],active:false,courts:[
       court('Sân 1','CLAY','OUTDOOR',23.8,11,120,true),court('Sân 2','CLAY','OUTDOOR',23.8,11,120,true),court('Sân 3','HARD','OUTDOOR',23.8,11,120,false),
       court('Sân 4','HARD','OUTDOOR',23.8,11,80,false),court('Sân 5','HARD','INDOOR',23.8,11,300,true)]},
-    {code:'san-quan-vot-lan-anh',name:'Sân quần vợt Lan Anh',venue:'CLB Lan Anh',address:'Quận 3, TP. Hồ Chí Minh',lat:'10.7870',lng:'106.6900',sports:['tennis'],active:true,courts:[
+    {code:'san-quan-vot-lan-anh',name:'Sân quần vợt Lan Anh',venue:'CLB Lan Anh',address:'Quận 3, TP. Hồ Chí Minh',province:'TP. Hồ Chí Minh',ward:'Bàn Cờ',lat:'10.7870',lng:'106.6900',sports:['tennis'],active:true,courts:[
       court('Court 1','CLAY','OUTDOOR',23.8,11,100,true),court('Court 2','CLAY','OUTDOOR',23.8,11,100,true),
       court('Court 3','CLAY','OUTDOOR',23.8,11,60,false),court('Court 4','HARD','INDOOR',23.8,11,250,true)]}
   ];
+
+  // ----- geo (province → wards) derived from data -----
+  var GEO={};
+  CLUSTERS.forEach(function(c){ if(!GEO[c.province])GEO[c.province]=[]; if(GEO[c.province].indexOf(c.ward)<0)GEO[c.province].push(c.ward); });
 
   // ----- mini court-plan SVG (signature) -----
   function planSVG(courts){
@@ -505,10 +572,12 @@ body{background:var(--app-bg);color:var(--app-ink)}
 
   // ----- render list -----
   var list=document.getElementById('list'), empty=document.getElementById('empty');
-  var fSport='all', fQ='', selected={};
+  var fSport='all', fQ='', fProv='all', fWard='all', selected={};
   function visible(){return CLUSTERS.filter(function(c){
     return (fSport==='all'||c.sports.indexOf(fSport)>-1)
-      && (fQ===''||(c.name+' '+c.address+' '+c.venue).toLowerCase().indexOf(fQ)>-1);});}
+      && (fProv==='all'||c.province===fProv)
+      && (fWard==='all'||c.ward===fWard)
+      && (fQ===''||(c.name+' '+c.address+' '+c.venue+' '+c.province+' '+c.ward).toLowerCase().indexOf(fQ)>-1);});}
   function render(){
     var v=visible(); list.innerHTML='';
     v.forEach(function(c){
@@ -519,7 +588,7 @@ body{background:var(--app-bg);color:var(--app-ink)}
         '<span class="qs-plan">'+planSVG(c.courts)+'<span class="qs-env">'+envIcon(c.courts)+'</span></span>'+
         '<div><div class="qs-name">'+c.name+' <span class="qs-code">'+c.code+'</span></div>'+
           '<div class="qs-loc"><svg viewBox="0 0 24 24"><path d="M21 10c0 6-9 12-9 12s-9-6-9-12a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>'+c.address+
-          ' <span class="qs-geo">· '+c.lat+', '+c.lng+'</span></div></div>'+
+          ' <span class="qs-geo">· '+c.ward+', '+c.province+'</span></div></div>'+
         '<div class="qs-tags">'+c.sports.map(function(s){return '<span class="qs-tag">'+SPORTS[s]+'</span>';}).join('')+'</div>'+
         '<div class="qs-courts"><div class="n">'+c.courts.length+'</div><div class="lbl">sân</div><div class="qs-dots">'+surfDots(c.courts)+'</div></div>'+
         '<button class="qs-toggle" role="switch" aria-checked="'+c.active+'" aria-label="Mở/đóng cụm"><span class="knob"></span></button>'+
@@ -542,12 +611,41 @@ body{background:var(--app-bg);color:var(--app-ink)}
     b.classList.add('on'); fSport=b.dataset.sport; render();});
   document.getElementById('search').addEventListener('input',function(){fQ=this.value.trim().toLowerCase();render();});
 
+  // ----- region filters (province → ward cascade) -----
+  var selProv=document.getElementById('fProvince'), selWard=document.getElementById('fWard');
+  Object.keys(GEO).forEach(function(p){selProv.insertAdjacentHTML('beforeend','<option value="'+p+'">'+p+'</option>');});
+  function fillWardFilter(){
+    selWard.innerHTML='<option value="all">Tất cả xã/phường</option>';
+    var ws=fProv==='all'?Object.keys(GEO).reduce(function(a,p){return a.concat(GEO[p]);},[]):(GEO[fProv]||[]);
+    ws.filter(function(w,i){return ws.indexOf(w)===i;}).forEach(function(w){selWard.insertAdjacentHTML('beforeend','<option value="'+w+'">'+w+'</option>');});
+  }
+  fillWardFilter();
+  selProv.addEventListener('change',function(){fProv=this.value;fWard='all';fillWardFilter();render();});
+  selWard.addEventListener('change',function(){fWard=this.value;render();});
+
+  // ----- select-all visible rows -----
+  var checkAll=document.getElementById('checkAll');
+  function updateCheckAll(){
+    var v=visible(), sel=v.filter(function(c){return selected[c.code];}).length;
+    checkAll.classList.toggle('on',v.length>0&&sel===v.length);
+    checkAll.classList.toggle('ind',sel>0&&sel<v.length);
+    checkAll.setAttribute('aria-checked',sel===0?'false':(sel===v.length?'true':'mixed'));
+  }
+  function toggleAll(){
+    var v=visible(), allSel=v.length>0&&v.every(function(c){return selected[c.code];});
+    v.forEach(function(c){selected[c.code]=!allSel;});
+    render();
+  }
+  checkAll.addEventListener('click',toggleAll);
+  checkAll.addEventListener('keydown',function(e){if(e.key===' '||e.key==='Enter'){e.preventDefault();toggleAll();}});
+
   // ----- batch select + row interactions -----
   var batchBar=document.getElementById('batchBar');
   function syncBatch(){
     var keys=Object.keys(selected).filter(function(k){return selected[k];});
     document.getElementById('batchCount').textContent=keys.length;
     batchBar.classList.toggle('show',keys.length>0);
+    updateCheckAll();
   }
   list.addEventListener('click',function(e){
     var row=e.target.closest('.qs-row'); if(!row)return; var c=find(row.dataset.code);
@@ -586,25 +684,86 @@ body{background:var(--app-bg);color:var(--app-ink)}
       var b=document.createElement('button');b.type='button';b.textContent='×';b.onclick=function(){sp.splice(i,1);renderSports(sp);};
       t.appendChild(b);box.insertBefore(t,sel);});
   }
-  // ---- Google map embed (temporary iframe) synced with lat/lng ----
+  // ---- interactive map (Leaflet/OSM): address-first, draggable pin ----
   var DEFAULT_LL=[16.0471,108.2068]; // Đà Nẵng center khi chưa có toạ độ
-  function updateMap(lat,lng){
-    var la=parseFloat(lat),ln=parseFloat(lng),placed=true;
+  var lmap=null, lmarker=null, hasLeaflet=(typeof L!=='undefined');
+  var fLat=document.getElementById('fLat'), fLng=document.getElementById('fLng');
+  var pinState=document.getElementById('pinState'), gmapLink=document.getElementById('gmapLink'), geoMsg=document.getElementById('geoMsg');
+
+  function setPin(lat,lng,placed){
+    var la=parseFloat(lat),ln=parseFloat(lng);
     if(isNaN(la)||isNaN(ln)){la=DEFAULT_LL[0];ln=DEFAULT_LL[1];placed=false;}
-    var q=la+','+ln;
-    document.getElementById('map').src='https://maps.google.com/maps?q='+(placed?q:'')+'&ll='+q+'&z=15&hl=vi&output=embed';
-    document.getElementById('gmapLink').href='https://www.google.com/maps/search/?api=1&query='+q;
+    if(hasLeaflet&&lmap){
+      lmap.setView([la,ln],placed?16:11);
+      if(!lmarker){
+        lmarker=L.marker([la,ln],{draggable:true}).addTo(lmap);
+        lmarker.on('dragend',function(){var p=lmarker.getLatLng();setPin(p.lat,p.lng,true);});
+      } else { lmarker.setLatLng([la,ln]); }
+      lmarker.setOpacity(placed?1:.4);
+    }
+    if(placed){fLat.value=(+la).toFixed(6);fLng.value=(+ln).toFixed(6);}
+    pinState.classList.toggle('set',!!placed);
+    pinState.innerHTML='<span class="dotp"></span>'+(placed?'Đã ghim · '+(+la).toFixed(5)+', '+(+ln).toFixed(5):'Chưa ghim vị trí');
+    gmapLink.href='https://www.google.com/maps/search/?api=1&query='+la+','+ln;
   }
+  function initMap(){
+    if(!hasLeaflet||lmap)return;
+    lmap=L.map('map',{zoomControl:true,scrollWheelZoom:true});
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(lmap);
+    lmap.setView(DEFAULT_LL,11);
+    lmap.on('click',function(e){setPin(e.latlng.lat,e.latlng.lng,true);hideGeoMsg();});
+  }
+  function showGeoMsg(t,kind){geoMsg.textContent=t;geoMsg.className='qs-geo-msg show '+(kind||'');}
+  function hideGeoMsg(){geoMsg.className='qs-geo-msg';}
+
+  // manual coord edit → move pin
   ['fLat','fLng'].forEach(function(id){document.getElementById(id).addEventListener('change',function(){
-    updateMap(document.getElementById('fLat').value,document.getElementById('fLng').value);});});
+    if(fLat.value!==''&&fLng.value!=='')setPin(fLat.value,fLng.value,true);});});
+
+  // geocode from address (Nominatim/OSM, keyless)
+  function geocode(){
+    var addr=document.getElementById('fAddr').value.trim();
+    var prov=document.getElementById('fProv').value, ward=document.getElementById('fWardSel').value;
+    if(!addr&&!prov){showGeoMsg('Nhập địa chỉ hoặc chọn tỉnh/thành trước khi định vị.','err');return;}
+    var q=[addr,ward,prov,'Việt Nam'].filter(Boolean).join(', ');
+    var btn=document.getElementById('geoBtn'); btn.classList.add('busy'); showGeoMsg('Đang tìm vị trí theo địa chỉ…','');
+    fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&accept-language=vi&q='+encodeURIComponent(q))
+      .then(function(r){return r.json();})
+      .then(function(d){btn.classList.remove('busy');
+        if(d&&d.length){setPin(d[0].lat,d[0].lon,true);showGeoMsg('Đã ghim theo địa chỉ. Kéo ghim hoặc bấm bản đồ để chỉnh nếu lệch.','ok');}
+        else{showGeoMsg('Không tìm thấy địa chỉ. Thử thêm phường/xã + tỉnh/thành, hoặc bấm trực tiếp lên bản đồ để đặt ghim.','err');}
+      })
+      .catch(function(){btn.classList.remove('busy');showGeoMsg('Không kết nối được dịch vụ bản đồ. Bấm lên bản đồ hoặc nhập toạ độ thủ công ở mục nâng cao.','err');});
+  }
+  document.getElementById('geoBtn').addEventListener('click',geocode);
+
+  // ---- drawer region selects (province / ward) ----
+  function fillDrawerWard(prov,ward){
+    var dw=document.getElementById('fWardSel');
+    dw.innerHTML='<option value="">— Chọn xã/phường —</option>';
+    var ws=(GEO[prov]||[]).slice();
+    if(ward&&ws.indexOf(ward)<0)ws.push(ward);
+    ws.forEach(function(w){dw.insertAdjacentHTML('beforeend','<option value="'+w+'"'+(w===ward?' selected':'')+'>'+w+'</option>');});
+  }
+  function fillDrawerRegion(prov,ward){
+    var dp=document.getElementById('fProv');
+    dp.innerHTML='<option value="">— Chọn tỉnh/thành —</option>';
+    Object.keys(GEO).forEach(function(p){dp.insertAdjacentHTML('beforeend','<option value="'+p+'"'+(p===prov?' selected':'')+'>'+p+'</option>');});
+    if(prov&&Object.keys(GEO).indexOf(prov)<0)dp.insertAdjacentHTML('beforeend','<option value="'+prov+'" selected>'+prov+'</option>');
+    fillDrawerWard(prov,ward);
+    dp.onchange=function(){fillDrawerWard(this.value,'');};
+  }
 
   function openDrawer(c){
-    draft=c||{code:'',name:'',venue:'',address:'',lat:'',lng:'',sports:[],active:true,courts:[]};
+    draft=c||{code:'',name:'',venue:'',address:'',province:'',ward:'',lat:'',lng:'',sports:[],active:true,courts:[]};
     document.getElementById('drTitle').textContent=c?'Sửa cụm sân':'Thêm cụm sân mới';
     document.getElementById('fName').value=draft.name; document.getElementById('fCode').value=draft.code;
     document.getElementById('fVenue').value=draft.venue; document.getElementById('fAddr').value=draft.address;
     document.getElementById('fLat').value=draft.lat; document.getElementById('fLng').value=draft.lng;
-    updateMap(draft.lat,draft.lng);
+    fillDrawerRegion(draft.province||'',draft.ward||''); hideGeoMsg();
+    initMap();
+    var hasLL=draft.lat!==''&&draft.lng!=='';
+    setTimeout(function(){if(lmap)lmap.invalidateSize(); setPin(hasLL?draft.lat:DEFAULT_LL[0],hasLL?draft.lng:DEFAULT_LL[1],hasLL);},320);
     var sp=draft.sports.slice(); renderSports(sp); draft._sp=sp;
     document.getElementById('addSport').onchange=function(){if(this.value&&sp.indexOf(this.value)<0){sp.push(this.value);renderSports(sp);}this.value='';};
     ctRows.innerHTML=''; (draft.courts.length?draft.courts:[court('Sân 1','HARD','INDOOR',18,9,100,true)]).forEach(function(ct,i){ctRows.appendChild(courtRow(ct,i));});
@@ -642,9 +801,9 @@ body{background:var(--app-bg);color:var(--app-ink)}
       .then(function(b){trigger(URL.createObjectURL(b),'manage-location-clusters-template.xlsx');})
       .catch(function(){
         var rows=[
-          ['cluster_code','name','venue_name','address','latitude','longitude','sports','is_active'],
-          ['cum-san-hoa-xuan','Cụm sân Hòa Xuân','NTĐ Hòa Xuân','Hòa Xuân, Đà Nẵng','16.0312','108.2249','cau-long,tennis','true'],
-          ['','(VÍ DỤ — xoá dòng này trước khi nhập thật)','','','','','cau-long','true']
+          ['cluster_code','name','venue_name','address','province','ward','latitude','longitude','sports','is_active'],
+          ['cum-san-hoa-xuan','Cụm sân Hòa Xuân','NTĐ Hòa Xuân','Hòa Xuân, Đà Nẵng','Đà Nẵng','Hòa Xuân','16.0312','108.2249','cau-long,tennis','true'],
+          ['','(VÍ DỤ — xoá dòng này trước khi nhập thật)','','','','','','','cau-long','true']
         ];
         var csv='﻿'+rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\r\n');
         trigger(URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'})),'cum-san-mau.csv');

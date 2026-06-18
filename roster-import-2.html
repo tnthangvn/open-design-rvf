@@ -4,8 +4,8 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Import giải đấu — Dựng giải từ danh sách Sở | Ban tổ chức RVF</title>
-<meta name="description" content="Import giải khép kín do Sở cung cấp qua template .xlsx: tải mẫu, upload, kiểm tra lỗi, xem trước cây giải và xác nhận dựng giải."/>
+<title>Import danh sách — VĐV/đội từ Sở cung cấp | Ban tổ chức RVF</title>
+<meta name="description" content="Import danh sách VĐV/đội từ Sở cung cấp cho giải đã tạo qua template .xlsx: tải mẫu, upload &amp; kiểm tra, xem trước danh sách tham gia, xác nhận import. Không tạo bracket/lịch đấu."/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <style>
@@ -118,6 +118,7 @@ button{font-family:inherit}
 .tag svg{width:14px;height:14px;stroke:currentColor;stroke-width:1.9;fill:none;stroke-linecap:round;stroke-linejoin:round}
 .tag.lock{background:rgba(123,0,0,.08);color:var(--app-maroon)}
 .tag.appr{background:rgba(23,163,74,.1);color:var(--app-green)}
+.tag.nobr{background:rgba(220,38,38,.08);color:var(--app-red)}
 .tag.code{background:#eef2f7;color:var(--app-label);font-family:var(--mono);font-weight:500}
 
 /* ---------- STEPPER ---------- */
@@ -406,7 +407,7 @@ td.cell-empty{color:var(--app-disabled);font-style:italic}
       </a>
       <a class="nav-item is-new active" href="roster-import.html" aria-current="page">
         <svg viewBox="0 0 24 24"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 12V5a2 2 0 0 1 2-2h7l5 5v4"/><path d="M12 22v-9"/><path d="m8.5 16.5 3.5-3.5 3.5 3.5"/></svg>
-        Import giải đấu <span class="new-dot">Mới</span>
+        Import danh sách <span class="new-dot">Mới</span>
       </a>
       <a class="nav-item is-new" href="media-library.html">
         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.5-3.5a2 2 0 0 0-2.8 0L4 22"/></svg>
@@ -441,16 +442,19 @@ td.cell-empty{color:var(--app-disabled);font-style:italic}
     <nav class="crumb" aria-label="Breadcrumb">
       <a href="tournament-media.html">Danh sách giải đấu</a>
       <svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
-      <span class="cur">Import giải đấu</span>
+      <a href="tournament-media.html">Giải Pickleball khép kín 2026</a>
+      <svg viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
+      <span class="cur">Import danh sách</span>
     </nav>
 
     <!-- page head -->
     <section class="page-head">
-      <h1 class="ph-title">Import giải đấu từ danh sách Sở cung cấp</h1>
-      <p class="ph-sub">Upload một file <b>template .xlsx</b> đã được Sở phân đội/đôi sẵn — hệ thống dựng nguyên giải khép kín: đội đã duyệt, VĐV, đội trưởng và thông tin người giám hộ.</p>
+      <h1 class="ph-title">Import danh sách VĐV/đội từ Sở cung cấp</h1>
+      <p class="ph-sub">Upload file <b>template .xlsx</b> đã được sinh theo cấu hình giải. Hệ thống chỉ import danh sách tham gia, đội/đôi và thông tin giám hộ; <b>bracket / lịch đấu sẽ được tạo ở bước riêng</b> sau khi danh sách được xác nhận.</p>
       <div class="ph-tags">
         <span class="tag lock"><svg viewBox="0 0 24 24"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>Giải khép kín · PRIVATE</span>
         <span class="tag appr"><svg viewBox="0 0 24 24"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>Đội import = đã duyệt</span>
+        <span class="tag nobr"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 14 3-3 3 2 4-5"/><path d="M4 4l16 16"/></svg>Không tạo bracket</span>
         <span class="tag code">template_version 1.0</span>
       </div>
     </section>
@@ -467,11 +471,11 @@ td.cell-empty{color:var(--app-disabled);font-style:italic}
       </button>
       <button class="step" data-step="3" role="tab" disabled>
         <span class="num">3</span>
-        <span class="lbl"><b>Xem trước cây giải</b><span>Đội/đôi · VĐV · giám hộ</span></span>
+        <span class="lbl"><b>Xem trước danh sách</b><span>Đội/đôi · VĐV · giám hộ</span></span>
       </button>
       <button class="step" data-step="4" role="tab" disabled>
         <span class="num">4</span>
-        <span class="lbl"><b>Xác nhận &amp; kết quả</b><span>Tạo mới / upsert / review</span></span>
+        <span class="lbl"><b>Xác nhận import</b><span>Tạo mới / upsert / review</span></span>
       </button>
     </div>
 
@@ -585,6 +589,28 @@ td.cell-empty{color:var(--app-disabled);font-style:italic}
             <div class="meta-cell"><span class="k">template_version</span><span class="v">1.0</span></div>
           </div>
 
+          <!-- Đối chiếu _META với cấu hình giải đã tạo (config là source of truth) -->
+          <h3 style="font-size:14px;color:var(--app-label);margin:22px 0 10px;display:flex;align-items:center;gap:8px">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--app-muted)" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>
+            Đối chiếu file với cấu hình giải <span style="font-weight:400;color:var(--app-muted)">— file <b>không</b> được ghi đè config</span>
+          </h3>
+          <div class="tbl-wrap">
+            <table class="errs">
+              <thead><tr><th>Trường</th><th>File (_META)</th><th>Cấu hình giải</th><th>Kết quả</th></tr></thead>
+              <tbody>
+                <tr><td>Bộ môn</td><td class="loc">pickleball</td><td class="loc">pickleball</td><td><span class="chip guard">Khớp</span></td></tr>
+                <tr><td>Thể thức</td><td class="loc">GROUP_KNOCKOUT</td><td class="loc">GROUP_KNOCKOUT</td><td><span class="chip guard">Khớp</span></td></tr>
+                <tr><td>Giới tính</td><td class="loc">MIXED</td><td class="loc">MIXED</td><td><span class="chip guard">Khớp</span></td></tr>
+                <tr><td>Số bảng</td><td class="loc">2 bảng</td><td class="loc">2 bảng</td><td><span class="chip guard">Khớp</span></td></tr>
+                <tr><td>Số đội tối đa</td><td class="loc">8 đội</td><td class="loc">8 đội</td><td><span class="chip minor">7/8 — còn trống</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="note info" style="margin-bottom:4px">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+            <span>Nếu <span class="key">_META</span> hoặc dữ liệu lệch cấu hình giải (sai format, sai số bảng, vượt số đội…) sẽ báo <b>lỗi/warning</b> tại đây. Cấu hình giải là <b>source of truth</b> — Excel chỉ nạp danh sách, không sửa giải.</span>
+          </div>
+
           <div class="vstats">
             <div class="vstat tot"><div class="n">24</div><div class="t">Dòng VĐV đọc được</div></div>
             <div class="vstat ok"><div class="n">21</div><div class="t">Hợp lệ</div></div>
@@ -689,7 +715,7 @@ td.cell-empty{color:var(--app-disabled);font-style:italic}
 
       <div class="wizard-foot">
         <button class="btn ghost" data-go="1"><svg viewBox="0 0 24 24"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>Quay lại</button>
-        <button class="btn warn" data-go="3" id="to-preview" disabled>Xem trước cây giải <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        <button class="btn warn" data-go="3" id="to-preview" disabled>Xem trước danh sách <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
       </div>
     </section>
 
@@ -698,92 +724,78 @@ td.cell-empty{color:var(--app-disabled);font-style:italic}
       <div class="card">
         <div class="card-head">
           <div>
-            <h2 class="card-title"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><rect x="7" y="9" width="4" height="9"/><rect x="14" y="5" width="4" height="13"/></svg>Cây giải sẽ được dựng</h2>
-            <p class="card-sub">Chỉ hiển thị các dòng <b>hợp lệ</b>. Bấm vào một đội/đôi để xem thành viên.</p>
+            <h2 class="card-title"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.9"/><path d="M16 3.1a4 4 0 0 1 0 7.8"/></svg>Xem trước danh sách tham gia</h2>
+            <p class="card-sub">Đây là dữ liệu sẽ được nạp vào giải. <b>Không tạo bracket / lịch đấu</b> ở bước này.</p>
           </div>
           <span class="tag code">SO-HCM-2026-001</span>
         </div>
 
-        <div class="tree-stats">
-          <div class="tcard"><div class="n">7</div><div class="t">Đội / đôi</div></div>
-          <div class="tcard"><div class="n">21</div><div class="t">Vận động viên</div></div>
-          <div class="tcard"><div class="n">7</div><div class="t">Đội trưởng</div></div>
-          <div class="tcard accent"><div class="n">3</div><div class="t">VĐV &lt;18 · có giám hộ</div></div>
+        <div class="tree-stats" style="grid-template-columns:repeat(3,1fr)">
+          <div class="tcard"><div class="n">21</div><div class="t">Tổng vận động viên</div></div>
+          <div class="tcard"><div class="n">7</div><div class="t">Tổng đội / đôi</div></div>
+          <div class="tcard"><div class="n">3</div><div class="t">VĐV dưới 18 tuổi</div></div>
+          <div class="tcard"><div class="n">3</div><div class="t">Guardian sẽ tạo / cập nhật</div></div>
+          <div class="tcard"><div class="n">2</div><div class="t">Số bảng (Bảng A · Bảng B)</div></div>
+          <div class="tcard accent"><div class="n">2<span style="font-size:16px"> · 1</span></div><div class="t">Lỗi · Warning</div></div>
         </div>
 
-        <!-- team 1 -->
-        <div class="team open">
-          <div class="team-head">
-            <svg class="chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
-            <span class="tref">T01</span>
-            <span class="tname">Đôi Pickleball Quận 1 — A</span>
-            <span class="tg"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#565d6d" stroke-width="1.8"><path d="M3 7h18M3 12h18M3 17h10"/></svg>Bảng A</span>
-            <span class="seed">seed 1</span>
-          </div>
-          <div class="team-body">
-            <div class="member">
-              <span class="av">NA</span>
-              <div class="info"><b>Nguyễn Văn A</b><div class="sub">1992-04-11 · male · a.nguyen@email.vn</div></div>
-              <span class="chip cap"><svg viewBox="0 0 24 24"><path d="m12 2 3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>Đội trưởng</span>
-            </div>
-            <div class="member">
-              <span class="av">TB</span>
-              <div class="info"><b>Trần Thị B</b><div class="sub">1995-09-02 · female · b.tran@email.vn</div></div>
-            </div>
-          </div>
+        <!-- Bảng đội/đôi -->
+        <h3 style="font-size:14px;color:var(--app-label);margin:22px 0 10px;display:flex;align-items:center;gap:8px">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--app-muted)" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+          Đội / đôi (<b>7</b>)
+        </h3>
+        <div class="tbl-wrap">
+          <table class="dict">
+            <thead><tr><th>Mã</th><th>Tên đội/đôi</th><th>Bảng</th><th>Seed</th><th>Số VĐV</th><th>Đội trưởng</th><th>Trạng thái</th></tr></thead>
+            <tbody>
+              <tr><td><span class="key">T01</span></td><td>Đôi Pickleball Quận 1 — A</td><td>Bảng A</td><td>1</td><td>2</td><td>Nguyễn Văn A</td><td><span class="chip guard">APPROVED</span></td></tr>
+              <tr><td><span class="key">T02</span></td><td>Đôi Pickleball Thủ Đức</td><td>Bảng A</td><td>4</td><td>2</td><td>Lê Văn C</td><td><span class="chip guard">APPROVED</span></td></tr>
+              <tr><td><span class="key">T03</span></td><td>Đôi Pickleball Bình Thạnh</td><td>Bảng B</td><td>2</td><td>2</td><td>Võ Văn E</td><td><span class="chip guard">APPROVED</span></td></tr>
+              <tr><td><span class="key">T05</span></td><td>Đôi Pickleball Gò Vấp</td><td>Bảng B</td><td>3</td><td>2</td><td>Bùi Văn H</td><td><span class="chip guard">APPROVED</span></td></tr>
+              <tr><td><span class="key">T06</span></td><td>Đôi Pickleball Tân Bình</td><td>Bảng A</td><td>—</td><td>2</td><td><span class="chip review">thiếu</span></td><td><span class="chip review">chờ sửa</span></td></tr>
+              <tr><td><span class="key">T07</span></td><td>Đôi Pickleball Phú Nhuận</td><td>Bảng B</td><td>5</td><td>2</td><td>Lê Văn C</td><td><span class="chip minor">1 review</span></td></tr>
+            </tbody>
+          </table>
         </div>
 
-        <!-- team 2 -->
-        <div class="team">
-          <div class="team-head">
-            <svg class="chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
-            <span class="tref">T02</span>
-            <span class="tname">Đôi Pickleball Thủ Đức</span>
-            <span class="tg"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#565d6d" stroke-width="1.8"><path d="M3 7h18M3 12h18M3 17h10"/></svg>Bảng A</span>
-            <span class="seed">seed 4</span>
-          </div>
-          <div class="team-body">
-            <div class="member">
-              <span class="av">LC</span>
-              <div class="info"><b>Lê Văn C</b><div class="sub">2008-12-20 · male · c.le@email.vn</div></div>
-              <span class="chip cap"><svg viewBox="0 0 24 24"><path d="m12 2 3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>Đội trưởng</span>
-              <span class="chip minor">17 tuổi</span>
-              <span class="chip guard"><svg viewBox="0 0 24 24"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>Giám hộ ✓</span>
-            </div>
-            <div class="member">
-              <span class="av">PD</span>
-              <div class="info"><b>Phạm Thị D</b><div class="sub">2009-03-15 · female · d.pham@email.vn</div></div>
-              <span class="chip minor">16 tuổi</span>
-              <span class="chip guard"><svg viewBox="0 0 24 24"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>Giám hộ ✓</span>
-            </div>
-          </div>
+        <!-- Bảng VĐV -->
+        <h3 style="font-size:14px;color:var(--app-label);margin:22px 0 10px;display:flex;align-items:center;gap:8px">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="var(--app-muted)" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Vận động viên (<b>21</b>) <span style="font-weight:400;color:var(--app-muted)">— hiển thị 6 dòng đầu</span>
+        </h3>
+        <div class="tbl-wrap">
+          <table class="dict">
+            <thead><tr><th>Họ tên</th><th>Đội</th><th>Ngày sinh</th><th>Tuổi</th><th>Giới tính</th><th>Email</th><th>Vai trò / giám hộ</th></tr></thead>
+            <tbody>
+              <tr><td>Nguyễn Văn A</td><td><span class="key">T01</span></td><td>1992-04-11</td><td>34</td><td>male</td><td>a.nguyen@email.vn</td><td><span class="chip cap">Đội trưởng</span></td></tr>
+              <tr><td>Trần Thị B</td><td><span class="key">T01</span></td><td>1995-09-02</td><td>30</td><td>female</td><td>b.tran@email.vn</td><td>—</td></tr>
+              <tr><td>Lê Văn C</td><td><span class="key">T02</span></td><td>2008-12-20</td><td>17</td><td>male</td><td>c.le@email.vn</td><td><span class="chip cap">Đội trưởng</span> <span class="chip guard">Giám hộ ✓</span></td></tr>
+              <tr><td>Phạm Thị D</td><td><span class="key">T02</span></td><td>2009-03-15</td><td>16</td><td>female</td><td>d.pham@email.vn</td><td><span class="chip minor">&lt;18</span> <span class="chip guard">Giám hộ ✓</span></td></tr>
+              <tr><td>Võ Văn E</td><td><span class="key">T03</span></td><td>1990-07-30</td><td>35</td><td>male</td><td>e.vo@email.vn</td><td><span class="chip cap">Đội trưởng</span></td></tr>
+              <tr><td>Đỗ Thị K</td><td><span class="key">T05</span></td><td>2010-02-09</td><td>16</td><td>female</td><td>k.do@email.vn</td><td><span class="chip review">thiếu giám hộ</span></td></tr>
+            </tbody>
+          </table>
         </div>
 
-        <!-- team 3 -->
-        <div class="team">
-          <div class="team-head">
-            <svg class="chev" viewBox="0 0 24 24"><path d="m9 18 6-6-6-6"/></svg>
-            <span class="tref">T03</span>
-            <span class="tname">Đôi Pickleball Bình Thạnh</span>
-            <span class="tg"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#565d6d" stroke-width="1.8"><path d="M3 7h18M3 12h18M3 17h10"/></svg>Bảng B</span>
-            <span class="seed">seed 2</span>
-          </div>
-          <div class="team-body">
-            <div class="member">
-              <span class="av">VE</span>
-              <div class="info"><b>Võ Văn E</b><div class="sub">1990-07-30 · male · e.vo@email.vn</div></div>
-              <span class="chip cap"><svg viewBox="0 0 24 24"><path d="m12 2 3 7h7l-5.5 4.5L18 21l-6-4-6 4 1.5-7.5L2 9h7z"/></svg>Đội trưởng</span>
-            </div>
-            <div class="member">
-              <span class="av">ĐG</span>
-              <div class="info"><b>Đặng Thị G</b><div class="sub">1993-11-05 · female · g.dang@email.vn</div></div>
-            </div>
-          </div>
+        <!-- Bảng lỗi -->
+        <h3 style="font-size:14px;color:#991b1b;margin:22px 0 10px;display:flex;align-items:center;gap:8px">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.3 3.8 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.8a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+          Lỗi / cảnh báo (<b>3</b>)
+        </h3>
+        <div class="tbl-wrap">
+          <table class="errs">
+            <thead><tr><th>Mức</th><th>Dòng</th><th>Key</th><th>Thông báo</th></tr></thead>
+            <tbody>
+              <tr><td><span class="chip review" style="background:#fde8e8;color:#991b1b">Lỗi</span></td><td class="loc">14</td><td><span class="key">guardian_email</span></td><td>VĐV sinh 2010 (&lt;18) thiếu email người giám hộ — bắt buộc.</td></tr>
+              <tr><td><span class="chip review" style="background:#fde8e8;color:#991b1b">Lỗi</span></td><td class="loc">19</td><td><span class="key">is_captain</span></td><td>Đội <code>T06</code> có 0 đội trưởng — cần đúng 1 dòng <code>true</code>.</td></tr>
+              <tr><td><span class="chip review">Warning</span></td><td class="loc">22</td><td><span class="key">full_name</span></td><td>Trùng họ tên + ngày sinh + giới tính với dòng 9 — cần review, không tự gộp.</td></tr>
+            </tbody>
+          </table>
         </div>
 
-        <div class="note info">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
-          <span>Còn <b>4 đội/đôi</b> nữa trong file (T04–T07) — đã thu gọn để dễ duyệt. Tổng cộng 7 đội · 21 VĐV hợp lệ.</span>
+        <div class="note warn">
+          <svg viewBox="0 0 24 24"><path d="M10.3 3.8 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.8a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg>
+          <span>Còn <b>2 lỗi</b> chưa sửa. Có thể quay lại bước Upload để sửa file rồi nạp lại — chỉ các dòng hợp lệ mới được import; bracket/lịch đấu vẫn tạo riêng ở bước sau.</span>
         </div>
       </div>
 
@@ -799,45 +811,45 @@ td.cell-empty{color:var(--app-disabled);font-style:italic}
       <div class="result-banner" id="result-banner">
         <span class="rb-ic"><svg viewBox="0 0 24 24"><path d="m5 13 4 4L19 7"/></svg></span>
         <div>
-          <h3>Đã dựng giải thành công</h3>
-          <p>Toàn bộ chạy trong 1 transaction. Giải <b>SO-HCM-2026-001</b> đã sẵn sàng.</p>
+          <h3>Import danh sách thành công</h3>
+          <p><b>Bracket / lịch đấu chưa được tạo.</b> Vui lòng quay lại chi tiết giải và dùng chức năng “Tạo sơ đồ thi đấu” khi đã sẵn sàng.</p>
         </div>
       </div>
 
       <div class="card">
         <div class="card-head">
           <div>
-            <h2 class="card-title"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Xác nhận trước khi dựng giải</h2>
-            <p class="card-sub">Kiểm tra lần cuối — sau khi xác nhận, hệ thống tạo dữ liệu trong một giao dịch duy nhất (lỗi sẽ rollback toàn bộ).</p>
+            <h2 class="card-title"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Xác nhận import danh sách</h2>
+            <p class="card-sub">Nạp danh sách vào giải <b>đã tạo sẵn</b>. Chạy trong 1 transaction (lỗi sẽ rollback toàn bộ). Không sửa cấu hình giải, không tạo bracket/lịch đấu.</p>
           </div>
         </div>
 
         <div class="summary-grid">
           <div>
-            <div class="srow"><span class="k">Mã giải</span><span class="v">SO-HCM-2026-001</span></div>
-            <div class="srow"><span class="k">Bộ môn</span><span class="v">pickleball</span></div>
-            <div class="srow"><span class="k">Thể thức</span><span class="v">GROUP_KNOCKOUT</span></div>
-            <div class="srow"><span class="k">Quyền riêng tư</span><span class="v">PRIVATE</span></div>
+            <div class="srow"><span class="k">Giải đích</span><span class="v">SO-HCM-2026-001</span></div>
+            <div class="srow"><span class="k">Bộ môn · thể thức</span><span class="v">pickleball · GROUP_KNOCKOUT</span></div>
+            <div class="srow"><span class="k">Sẽ tạo/upsert</span><span class="v">User · Athlete · Team · Member · Guardian</span></div>
+            <div class="srow"><span class="k">Quyền riêng tư giải</span><span class="v">PRIVATE (giữ nguyên)</span></div>
           </div>
           <div>
-            <div class="srow"><span class="k">Số đội/đôi</span><span class="v">7</span></div>
-            <div class="srow"><span class="k">Số VĐV</span><span class="v">21</span></div>
+            <div class="srow"><span class="k">Số đội/đôi nạp</span><span class="v">7</span></div>
+            <div class="srow"><span class="k">Số VĐV nạp</span><span class="v">21</span></div>
             <div class="srow"><span class="k">Trạng thái đăng ký đội</span><span class="v">APPROVED · active</span></div>
-            <div class="srow"><span class="k">VĐV &lt;18 cần giám hộ</span><span class="v">3</span></div>
+            <div class="srow"><span class="k">Guardian tạo/cập nhật</span><span class="v">3</span></div>
           </div>
         </div>
 
         <div class="note warn">
           <svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="m9 12 2 2 4-4"/></svg>
-          <span>Vì Sở đã cung cấp đủ thông tin giám hộ ⇒ hệ thống tạo <b>GuardianRequest đã duyệt sẵn</b>
-            (<span class="key">guardian_source = SPORT_DEPARTMENT_IMPORT</span>, <span class="key">status = approved</span>) và
-            <b>bỏ qua</b> luồng xác minh riêng — không gửi OTP/SMS cho giám hộ.</span>
+          <span>Guardian từ file Sở (hợp lệ) được tạo <b>đã duyệt sẵn</b>
+            (<span class="key">source = SPORT_DEPARTMENT_IMPORT</span>, <span class="key">status = approved</span>, <span class="key">requires_reconfirmation = false</span>) — không yêu cầu giám hộ xác nhận lại.
+            Import <b>không</b> tạo bracket, lịch đấu hay vòng Swiss.</span>
         </div>
 
         <div class="wizard-foot" style="border-top:1px solid var(--app-line);margin-top:8px">
           <button class="btn ghost" data-go="3"><svg viewBox="0 0 24 24"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>Quay lại</button>
           <button class="btn primary" id="do-import">
-            <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>Xác nhận &amp; dựng giải
+            <svg viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>Xác nhận &amp; import danh sách
           </button>
         </div>
       </div>
@@ -865,9 +877,13 @@ td.cell-empty{color:var(--app-disabled);font-style:italic}
             </tbody>
           </table>
         </div>
+        <div class="note info">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 16v-4M12 8h.01"/></svg>
+          <span>Bracket / lịch đấu chưa được tạo. Mở chi tiết giải và dùng <b>“Tạo sơ đồ thi đấu”</b> khi danh sách đã sẵn sàng.</span>
+        </div>
         <div class="wizard-foot">
-          <a class="btn ghost" href="tournament-media.html"><svg viewBox="0 0 24 24"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>Về danh sách giải</a>
-          <a class="btn warn" href="tournament-media.html">Mở chi tiết giải vừa dựng <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+          <a class="btn ghost" href="tournament-media.html"><svg viewBox="0 0 24 24"><path d="M19 12H5M11 18l-6-6 6-6"/></svg>Quay lại chi tiết giải</a>
+          <a class="btn warn" href="tournament-media.html">Tạo sơ đồ thi đấu <svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><rect x="7" y="9" width="4" height="9"/><rect x="14" y="5" width="4" height="13"/></svg></a>
         </div>
       </div>
     </section>
@@ -963,7 +979,7 @@ td.cell-empty{color:var(--app-disabled);font-style:italic}
   if(doImport){
     doImport.addEventListener('click',function(){
       doImport.disabled=true;
-      doImport.innerHTML='<svg viewBox="0 0 24 24" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.2-8.5"/></svg>Đang dựng giải…';
+      doImport.innerHTML='<svg viewBox="0 0 24 24" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 1 1-6.2-8.5"/></svg>Đang import danh sách…';
       setTimeout(function(){
         document.getElementById('result-banner').classList.add('show');
         document.getElementById('result-detail').style.display='block';
